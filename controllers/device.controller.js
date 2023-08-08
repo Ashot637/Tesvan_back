@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const { Device, DeviceInfo } = require('../models/models');
 const uuid = require('uuid');
 const path = require('path');
@@ -199,6 +199,157 @@ class DeviceController {
       });
       return res.json(devices);
     } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+  async getAllFiltres(req, res) {
+    try {
+      let filterTypes = await Device.findAll({
+        include: [{ model: DeviceInfo, as: 'info' }],
+      });
+      let uniqeValues = filterTypes.map((e) => e.info.map((i) => i.title));
+      uniqeValues = [...new Set(uniqeValues.flat())];
+      let obj = {};
+      for (let title of uniqeValues) {
+        obj[title] = [];
+      }
+      filterTypes.forEach((device) =>
+        device.info.forEach((i) => {
+          let key = i.title;
+          obj[key] = [...obj[key], i.description];
+        }),
+      );
+      let arr = [];
+      for (let title in obj) {
+        arr.push({
+          title: title,
+          description: [...new Set(obj[title])],
+        });
+      }
+      return res.json(arr);
+    } catch (error) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+  async filter(req, res) {
+    try {
+      let {
+        typeId,
+        brandId,
+        categorieId,
+        limit,
+        page,
+        minPrice,
+        maxPrice,
+        sortName,
+        sortFollowing,
+        ...data
+      } = req.query;
+
+      brandId = +brandId;
+      categorieId = +categorieId;
+      page = page || 1;
+      limit = limit || 12;
+      minPrice = +minPrice || 0;
+      maxPrice = +maxPrice || 2000000;
+      sortName = sortName || 'price';
+      sortFollowing = sortFollowing || 'DESC';
+
+      let offset = page * limit - limit;
+      let devices;
+      if (!typeId && !brandId && !categorieId) {
+        devices = await Device.findAll({
+          where: {
+            price: {
+              [Op.and]: {
+                [Op.gte]: minPrice,
+                [Op.lte]: maxPrice,
+              },
+            },
+          },
+          include: [{ model: DeviceInfo, as: 'info' }],
+        });
+      }
+      if (typeId) {
+        devices = await Device.findAll({
+          where: {
+            typeId,
+            price: {
+              [Op.and]: {
+                [Op.gte]: minPrice,
+                [Op.lte]: maxPrice,
+              },
+            },
+          },
+          include: [{ model: DeviceInfo, as: 'info' }],
+        });
+      }
+      if (brandId && !categorieId) {
+        devices = await Device.findAll({
+          where: {
+            brandId,
+            price: {
+              [Op.and]: {
+                [Op.gte]: minPrice,
+                [Op.lte]: maxPrice,
+              },
+            },
+          },
+          order: [[sortName, sortFollowing]],
+          include: [{ model: DeviceInfo, as: 'info' }],
+        });
+      }
+      if (!brandId && categorieId) {
+        devices = await Device.findAll({
+          where: {
+            categorieId,
+            price: {
+              [Op.and]: {
+                [Op.gte]: minPrice,
+                [Op.lte]: maxPrice,
+              },
+            },
+          },
+          order: [[sortName, sortFollowing]],
+          include: [{ model: DeviceInfo, as: 'info' }],
+        });
+      }
+      if (brandId && categorieId) {
+        devices = await Device.findAll({
+          where: {
+            brandId,
+            categorieId,
+            price: {
+              [Op.and]: {
+                [Op.gte]: minPrice,
+                [Op.lte]: maxPrice,
+              },
+            },
+          },
+          order: [[sortName, sortFollowing]],
+          include: [{ model: DeviceInfo, as: 'info' }],
+        });
+      }
+
+      const obj = {};
+
+      let result = devices.map((e) => {
+        return e.info.map((item, i) => {
+          obj[item.title] = item.description;
+          return i === e.info.length - 1 &&
+            Object.entries(data).every(([key, value]) => obj[key] === value)
+            ? e
+            : null;
+        });
+      });
+      result = result.flat();
+      result = result.filter((e) => e);
+      let pagination = Math.ceil(result.length / limit);
+      result = result.slice(offset, offset + 12);
+      return res.json({ result, pagination });
+    } catch (error) {
       res.status(500).json({ succes: false });
       console.log(e);
     }
