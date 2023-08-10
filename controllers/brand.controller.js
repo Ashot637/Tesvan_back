@@ -1,16 +1,11 @@
 const { Brand } = require('../models/models');
-const uuid = require('uuid');
-const path = require('path');
 
 class BrandController {
   async create(req, res) {
     try {
-      const { title } = req.body;
-      const { img } = req.files;
-      const fileName = uuid.v4() + '.png';
-      img.mv(path.resolve(__dirname, '..', 'static', fileName));
+      const { title, img } = req.body;
 
-      const brand = await Brand.create({ title, img: fileName });
+      const brand = await Brand.create({ title, img });
 
       return res.send(brand);
     } catch (e) {
@@ -23,6 +18,56 @@ class BrandController {
     try {
       const brands = await Brand.findAll();
       return res.send(brands);
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async getOne(req, res) {
+    try {
+      const { id } = req.params;
+      const brand = await Brand.findOne({
+        where: { id },
+      });
+      return res.json(brand);
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async deleteOne(req, res) {
+    try {
+      const { id } = req.params;
+      const brand = await Brand.destroy({
+        where: { id },
+      });
+      return res.json({ succes: true });
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async updateOne(req, res) {
+    try {
+      let { title, img } = req.body;
+      const { id } = req.params;
+
+      await Brand.update(
+        {
+          title,
+          img,
+        },
+        {
+          where: {
+            id,
+          },
+        },
+      );
+
+      return res.json({ success: true });
     } catch (e) {
       res.status(500).json({ succes: false });
       console.log(e);

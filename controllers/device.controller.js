@@ -6,10 +6,7 @@ const path = require('path');
 class DeviceController {
   async create(req, res) {
     try {
-      let { title, price, oldPrice, typeId, brandId, categorieId, info, quantity } = req.body;
-      const { img } = req.files;
-      const fileName = uuid.v4() + '.png';
-      img.mv(path.resolve(__dirname, '..', 'static', fileName));
+      let { title, price, oldPrice, typeId, brandId, categorieId, info, quantity, img } = req.body;
 
       const device = await Device.create({
         title,
@@ -19,7 +16,7 @@ class DeviceController {
         typeId,
         brandId,
         categorieId,
-        img: fileName,
+        img,
       });
 
       if (info) {
@@ -171,6 +168,89 @@ class DeviceController {
     }
   }
 
+  async deleteOne(req, res) {
+    try {
+      const { id } = req.params;
+      const device = await Device.destroy({
+        where: { id },
+      });
+      return res.json({ succes: true });
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async updateOne(req, res) {
+    try {
+      let { title, price, oldPrice, typeId, brandId, categorieId, info, quantity, img } = req.body;
+      const { id } = req.params;
+
+      const device = await Device.findOne({ where: { id } });
+      await Device.update(
+        {
+          title,
+          price,
+          oldPrice,
+          quantity,
+          typeId,
+          brandId,
+          categorieId,
+          img,
+        },
+        {
+          where: {
+            id,
+          },
+        },
+      );
+
+      if (info) {
+        info = JSON.parse(info);
+        info.forEach((i) => {
+          if (i.id) {
+            DeviceInfo.update(
+              {
+                title: i.title,
+                description: i.description,
+                deviceId: device.id,
+              },
+              {
+                where: {
+                  id: i.id,
+                },
+              },
+            );
+          } else {
+            console.log('Created');
+            DeviceInfo.create({
+              title: i.title,
+              description: i.description,
+              deviceId: device.id,
+            });
+          }
+        });
+      }
+
+      return res.json(device);
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async removeInfo(req, res) {
+    try {
+      const { id } = req.params;
+
+      await DeviceInfo.destroy({ where: { id } });
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
   async getMany(req, res) {
     try {
       const { ids } = req.body;
@@ -203,6 +283,7 @@ class DeviceController {
       console.log(e);
     }
   }
+
   async getAllFiltres(req, res) {
     try {
       let filterTypes = await Device.findAll({
@@ -233,6 +314,7 @@ class DeviceController {
       console.log(e);
     }
   }
+
   async filter(req, res) {
     try {
       let {
@@ -349,7 +431,20 @@ class DeviceController {
       let pagination = Math.ceil(result.length / limit);
       result = result.slice(offset, offset + 12);
       return res.json({ result, pagination });
-    } catch (error) {
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async uploadImage(req, res) {
+    try {
+      const { img } = req.files;
+      const fileName = uuid.v4() + '.png';
+      img.mv(path.resolve(__dirname, '..', 'static', fileName));
+
+      return res.json({ url: fileName });
+    } catch (e) {
       res.status(500).json({ succes: false });
       console.log(e);
     }

@@ -59,7 +59,8 @@ const Orders = sequelize.define('orders', {
   region: { type: DataTypes.STRING, allowNull: false },
   address: { type: DataTypes.STRING, allowNull: false },
   message: { type: DataTypes.STRING, allowNull: true },
-  choice: { type: DataTypes.STRING, allowNull: false },
+  payment: { type: DataTypes.STRING, allowNull: false },
+  delivery: { type: DataTypes.STRING, allowNull: false },
   status: { type: DataTypes.STRING, defaultValue: 'pending' },
 });
 

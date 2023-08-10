@@ -1,16 +1,11 @@
 const { Categorie } = require('../models/models');
-const uuid = require('uuid');
-const path = require('path');
 
 class CategorieController {
   async create(req, res) {
     try {
-      const { title } = req.body;
-      const { img } = req.files;
-      const fileName = uuid.v4() + '.png';
-      img.mv(path.resolve(__dirname, '..', 'static', fileName));
+      const { title, img } = req.body;
 
-      const categorie = await Categorie.create({ title, img: fileName });
+      const categorie = await Categorie.create({ title, img });
 
       return res.send(categorie);
     } catch (e) {
@@ -23,6 +18,56 @@ class CategorieController {
     try {
       const categories = await Categorie.findAll();
       return res.send(categories);
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async getOne(req, res) {
+    try {
+      const { id } = req.params;
+      const categorie = await Categorie.findOne({
+        where: { id },
+      });
+      return res.json(categorie);
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async deleteOne(req, res) {
+    try {
+      const { id } = req.params;
+      const categorie = await Categorie.destroy({
+        where: { id },
+      });
+      return res.json({ succes: true });
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async updateOne(req, res) {
+    try {
+      let { title, img } = req.body;
+      const { id } = req.params;
+
+      await Categorie.update(
+        {
+          title,
+          img,
+        },
+        {
+          where: {
+            id,
+          },
+        },
+      );
+
+      return res.json({ success: true });
     } catch (e) {
       res.status(500).json({ succes: false });
       console.log(e);
