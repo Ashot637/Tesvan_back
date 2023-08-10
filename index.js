@@ -13,12 +13,9 @@ const ordersRouter = require('./routes/order.routes');
 const headerImageRouter = require('./routes/headerImage.routes');
 const sliderImageRouter = require('./routes/sliderImage.routes');
 const bodyParser = require('body-parser');
-const adminRouter = require('./controllers/admin.controller').router;
-const adminBro = require('./controllers/admin.controller').adminBro;
 
 const app = express();
 
-app.use(adminBro.options.rootPath, adminRouter);
 app.use(bodyParser.json());
 
 app.use(express.json());

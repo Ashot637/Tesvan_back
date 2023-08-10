@@ -13,11 +13,6 @@
     "nodemon": "^2.0.22"
   },
   "dependencies": {
-    "@admin-bro/design-system": "^1.7.3",
-    "@admin-bro/express": "^3.1.0",
-    "@admin-bro/sequelize": "^1.2.1",
-    "admin-bro": "^4.0.1",
-    "admin-bro-expressjs": "^2.1.1",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
