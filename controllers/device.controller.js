@@ -1,4 +1,4 @@
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const { Device, DeviceInfo } = require('../models/models');
 const uuid = require('uuid');
 const path = require('path');
@@ -6,8 +6,10 @@ const path = require('path');
 class DeviceController {
   async create(req, res) {
     try {
-      let { title, price, oldPrice, typeId, brandId, categorieId, info, quantity, img } = req.body;
+      let { title, price, oldPrice, typeId, brandId, categorieId, info, quantity, images } =
+        req.body;
 
+      images = images.split(',');
       const device = await Device.create({
         title,
         price,
@@ -16,7 +18,7 @@ class DeviceController {
         typeId,
         brandId,
         categorieId,
-        img,
+        images,
       });
 
       if (info) {
@@ -183,8 +185,11 @@ class DeviceController {
 
   async updateOne(req, res) {
     try {
-      let { title, price, oldPrice, typeId, brandId, categorieId, info, quantity, img } = req.body;
+      let { title, price, oldPrice, typeId, brandId, categorieId, info, quantity, images } =
+        req.body;
       const { id } = req.params;
+
+      images = images.split(',');
 
       const device = await Device.findOne({ where: { id } });
       await Device.update(
@@ -196,7 +201,7 @@ class DeviceController {
           typeId,
           brandId,
           categorieId,
-          img,
+          images,
         },
         {
           where: {
@@ -286,13 +291,17 @@ class DeviceController {
 
   async getAllFiltres(req, res) {
     try {
+      const { categorieId } = req.query;
       let filterTypes = await Device.findAll({
+        where: {
+          categorieId,
+        },
         include: [{ model: DeviceInfo, as: 'info' }],
       });
-      let uniqeValues = filterTypes.map((e) => e.info.map((i) => i.title));
-      uniqeValues = [...new Set(uniqeValues.flat())];
+      let uniqueValues = filterTypes.map((e) => e.info.map((i) => i.title));
+      uniqueValues = [...new Set(uniqueValues.flat())];
       let obj = {};
-      for (let title of uniqeValues) {
+      for (let title of uniqueValues) {
         obj[title] = [];
       }
       filterTypes.forEach((device) =>
@@ -309,7 +318,7 @@ class DeviceController {
         });
       }
       return res.json(arr);
-    } catch (error) {
+    } catch (e) {
       res.status(500).json({ succes: false });
       console.log(e);
     }
@@ -318,7 +327,6 @@ class DeviceController {
   async filter(req, res) {
     try {
       let {
-        typeId,
         brandId,
         categorieId,
         limit,
@@ -341,49 +349,7 @@ class DeviceController {
 
       let offset = page * limit - limit;
       let devices;
-      if (!typeId && !brandId && !categorieId) {
-        devices = await Device.findAll({
-          where: {
-            price: {
-              [Op.and]: {
-                [Op.gte]: minPrice,
-                [Op.lte]: maxPrice,
-              },
-            },
-          },
-          include: [{ model: DeviceInfo, as: 'info' }],
-        });
-      }
-      if (typeId) {
-        devices = await Device.findAll({
-          where: {
-            typeId,
-            price: {
-              [Op.and]: {
-                [Op.gte]: minPrice,
-                [Op.lte]: maxPrice,
-              },
-            },
-          },
-          include: [{ model: DeviceInfo, as: 'info' }],
-        });
-      }
-      if (brandId && !categorieId) {
-        devices = await Device.findAll({
-          where: {
-            brandId,
-            price: {
-              [Op.and]: {
-                [Op.gte]: minPrice,
-                [Op.lte]: maxPrice,
-              },
-            },
-          },
-          order: [[sortName, sortFollowing]],
-          include: [{ model: DeviceInfo, as: 'info' }],
-        });
-      }
-      if (!brandId && categorieId) {
+      if (!brandId) {
         devices = await Device.findAll({
           where: {
             categorieId,
@@ -394,11 +360,10 @@ class DeviceController {
               },
             },
           },
-          order: [[sortName, sortFollowing]],
           include: [{ model: DeviceInfo, as: 'info' }],
         });
       }
-      if (brandId && categorieId) {
+      if (brandId) {
         devices = await Device.findAll({
           where: {
             brandId,

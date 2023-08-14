@@ -18,8 +18,9 @@ class OrdersController {
         payment,
         delivery,
       });
-      devices.forEach((deviceId) => {
-        Device.decrement('quantity', { by: 1, where: { id: deviceId } });
+      devices = JSON.parse(devices);
+      devices.map((device) => {
+        Device.decrement('quantity', { by: device.count, where: { id: device.id } });
       });
       res.send(order);
     } catch (e) {
@@ -57,6 +58,26 @@ class OrdersController {
       const order = await Orders.destroy({
         where: { id },
       });
+      return res.json({ succes: true });
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async updateOne(req, res) {
+    try {
+      const { status } = req.body;
+      const { id } = req.params;
+      const order = await Orders.update(
+        {
+          status,
+        },
+        {
+          where: { id },
+        },
+      );
+
       return res.json({ succes: true });
     } catch (e) {
       res.status(500).json({ succes: false });

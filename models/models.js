@@ -13,7 +13,7 @@ const Device = sequelize.define('device', {
   title: { type: DataTypes.STRING, allowNull: false },
   price: { type: DataTypes.INTEGER, allowNull: false },
   oldPrice: { type: DataTypes.INTEGER, allowNull: false },
-  img: { type: DataTypes.STRING, allowNull: false },
+  images: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false },
   typeId: { type: DataTypes.INTEGER, allowNull: true },
   quantity: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
 });
@@ -51,7 +51,7 @@ const ContactMessage = sequelize.define('contact_message', {
 
 const Orders = sequelize.define('orders', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  devices: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false },
+  devices: { type: DataTypes.STRING, allowNull: false },
   name: { type: DataTypes.STRING, allowNull: false },
   surname: { type: DataTypes.STRING, allowNull: false },
   phone: { type: DataTypes.STRING, allowNull: false },

@@ -12,6 +12,7 @@ const contactMessageRouter = require('./routes/contactMessage.routes');
 const ordersRouter = require('./routes/order.routes');
 const headerImageRouter = require('./routes/headerImage.routes');
 const sliderImageRouter = require('./routes/sliderImage.routes');
+const adminRouter = require('./routes/admin.routes');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -31,6 +32,8 @@ app.use('/api', ordersRouter);
 
 app.use('/api/img', headerImageRouter);
 app.use('/api/img', sliderImageRouter);
+
+app.use('/api', adminRouter);
 
 const start = async () => {
   try {
