@@ -3,6 +3,72 @@ const { Device, DeviceInfo } = require('../models/models');
 const uuid = require('uuid');
 const path = require('path');
 
+const getRussianValues = (devices) => {
+  devices = devices.map((device) => {
+    let newDevice = {
+      ...device.dataValues,
+      info: device.info.map((i) => {
+        let {
+          title_am,
+          title_en,
+          title_ru,
+          description_am,
+          description_en,
+          description_ru,
+          ...data
+        } = i.dataValues;
+        return { ...data, title: title_ru, description: description_ru };
+      }),
+    };
+    return newDevice;
+  });
+  return devices;
+};
+
+const getArmenainValues = (devices) => {
+  devices = devices.map((device) => {
+    let newDevice = {
+      ...device.dataValues,
+      info: device.info.map((i) => {
+        let {
+          title_am,
+          title_en,
+          title_ru,
+          description_am,
+          description_en,
+          description_ru,
+          ...data
+        } = i.dataValues;
+        return { ...data, title: title_am, description: description_am };
+      }),
+    };
+    return newDevice;
+  });
+  return devices;
+};
+
+const getEnglishValues = (devices) => {
+  devices = devices.map((device) => {
+    let newDevice = {
+      ...device.dataValues,
+      info: device.info.map((i) => {
+        let {
+          title_am,
+          title_en,
+          title_ru,
+          description_am,
+          description_en,
+          description_ru,
+          ...data
+        } = i.dataValues;
+        return { ...data, title: title_en, description: description_en };
+      }),
+    };
+    return newDevice;
+  });
+  return devices;
+};
+
 class DeviceController {
   async create(req, res) {
     try {
@@ -25,8 +91,12 @@ class DeviceController {
         info = JSON.parse(info);
         info.forEach((i) => {
           DeviceInfo.create({
-            title: i.title,
-            description: i.description,
+            title_en: i.title_en,
+            title_am: i.title_am,
+            title_ru: i.title_ru,
+            description_en: i.description_en,
+            description_am: i.description_am,
+            description_ru: i.description_ru,
             deviceId: device.id,
           });
         });
@@ -52,6 +122,7 @@ class DeviceController {
         sortName,
         sortFollowing,
       } = req.query;
+      const { language } = req.headers;
 
       brandId = +brandId;
       categorieId = +categorieId;
@@ -78,6 +149,13 @@ class DeviceController {
           limit,
           offset,
         });
+        if (language === 'am') {
+          devices = getArmenainValues(devices);
+        } else if (language === 'ru') {
+          devices = getRussianValues(devices);
+        } else {
+          devices = getEnglishValues(devices);
+        }
         return res.send(devices);
       }
       if (typeId) {
@@ -95,6 +173,13 @@ class DeviceController {
           limit,
           offset,
         });
+        if (language === 'am') {
+          devices = getArmenainValues(devices);
+        } else if (language === 'ru') {
+          devices = getRussianValues(devices);
+        } else {
+          devices = getEnglishValues(devices);
+        }
         return res.send(devices);
       }
       if (brandId && !categorieId) {
@@ -113,6 +198,13 @@ class DeviceController {
           limit,
           offset,
         });
+        if (language === 'am') {
+          devices = getArmenainValues(devices);
+        } else if (language === 'ru') {
+          devices = getRussianValues(devices);
+        } else {
+          devices = getEnglishValues(devices);
+        }
       }
       if (!brandId && categorieId) {
         devices = await Device.findAll({
@@ -130,6 +222,13 @@ class DeviceController {
           limit,
           offset,
         });
+        if (language === 'am') {
+          devices = getArmenainValues(devices);
+        } else if (language === 'ru') {
+          devices = getRussianValues(devices);
+        } else {
+          devices = getEnglishValues(devices);
+        }
       }
       if (brandId && categorieId) {
         devices = await Device.findAll({
@@ -148,7 +247,15 @@ class DeviceController {
           limit,
           offset,
         });
+        if (language === 'am') {
+          devices = getArmenainValues(devices);
+        } else if (language === 'ru') {
+          devices = getRussianValues(devices);
+        } else {
+          devices = getEnglishValues(devices);
+        }
       }
+
       return res.send(devices);
     } catch (e) {
       res.status(500).json({ succes: false });
@@ -159,10 +266,62 @@ class DeviceController {
   async getOne(req, res) {
     try {
       const { id } = req.params;
-      const device = await Device.findOne({
+      const { language } = req.headers;
+      let device = await Device.findOne({
         where: { id },
         include: [{ model: DeviceInfo, as: 'info' }],
       });
+      if (language) {
+        if (language === 'am') {
+          device = {
+            ...device.dataValues,
+            info: device.info.map((i) => {
+              let {
+                title_am,
+                title_en,
+                title_ru,
+                description_am,
+                description_en,
+                description_ru,
+                ...data
+              } = i.dataValues;
+              return { ...data, title: title_am, description: description_am };
+            }),
+          };
+        } else if (language === 'ru') {
+          device = {
+            ...device.dataValues,
+            info: device.info.map((i) => {
+              let {
+                title_am,
+                title_en,
+                title_ru,
+                description_am,
+                description_en,
+                description_ru,
+                ...data
+              } = i.dataValues;
+              return { ...data, title: title_ru, description: description_ru };
+            }),
+          };
+        } else {
+          device = {
+            ...device.dataValues,
+            info: device.info.map((i) => {
+              let {
+                title_am,
+                title_en,
+                title_ru,
+                description_am,
+                description_en,
+                description_ru,
+                ...data
+              } = i.dataValues;
+              return { ...data, title: title_en, description: description_en };
+            }),
+          };
+        }
+      }
       return res.json(device);
     } catch (e) {
       res.status(500).json({ succes: false });
@@ -216,8 +375,12 @@ class DeviceController {
           if (i.id) {
             DeviceInfo.update(
               {
-                title: i.title,
-                description: i.description,
+                title_en: i.title_en,
+                title_am: i.title_am,
+                title_ru: i.title_ru,
+                description_en: i.description_en,
+                description_am: i.description_am,
+                description_ru: i.description_ru,
                 deviceId: device.id,
               },
               {
@@ -227,10 +390,13 @@ class DeviceController {
               },
             );
           } else {
-            console.log('Created');
             DeviceInfo.create({
-              title: i.title,
-              description: i.description,
+              title_en: i.title_en,
+              title_am: i.title_am,
+              title_ru: i.title_ru,
+              description_en: i.description_en,
+              description_am: i.description_am,
+              description_ru: i.description_ru,
               deviceId: device.id,
             });
           }
@@ -337,6 +503,7 @@ class DeviceController {
         sortFollowing,
         ...data
       } = req.query;
+      const { language } = req.headers;
 
       brandId = +brandId;
       categorieId = +categorieId;
@@ -360,8 +527,16 @@ class DeviceController {
               },
             },
           },
+          order: [[sortName, sortFollowing]],
           include: [{ model: DeviceInfo, as: 'info' }],
         });
+        if (language === 'am') {
+          devices = getArmenainValues(devices);
+        } else if (language === 'ru') {
+          devices = getRussianValues(devices);
+        } else {
+          devices = getEnglishValues(devices);
+        }
       }
       if (brandId) {
         devices = await Device.findAll({
@@ -378,6 +553,13 @@ class DeviceController {
           order: [[sortName, sortFollowing]],
           include: [{ model: DeviceInfo, as: 'info' }],
         });
+        if (language === 'am') {
+          devices = getArmenainValues(devices);
+        } else if (language === 'ru') {
+          devices = getRussianValues(devices);
+        } else {
+          devices = getEnglishValues(devices);
+        }
       }
 
       const obj = {};

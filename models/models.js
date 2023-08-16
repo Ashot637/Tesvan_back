@@ -20,7 +20,9 @@ const Device = sequelize.define('device', {
 
 const Categorie = sequelize.define('categorie', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  title: { type: DataTypes.STRING, unique: true, allowNull: false },
+  title_am: { type: DataTypes.STRING, unique: true, allowNull: false },
+  title_ru: { type: DataTypes.STRING, unique: true, allowNull: false },
+  title_en: { type: DataTypes.STRING, unique: true, allowNull: false },
   img: { type: DataTypes.STRING, allowNull: false },
 });
 
@@ -32,8 +34,12 @@ const Brand = sequelize.define('brand', {
 
 const DeviceInfo = sequelize.define('device_info', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  title: { type: DataTypes.STRING, allowNull: false },
-  description: { type: DataTypes.STRING, allowNull: false },
+  title_am: { type: DataTypes.STRING, unique: true, allowNull: false },
+  title_ru: { type: DataTypes.STRING, unique: true, allowNull: false },
+  title_en: { type: DataTypes.STRING, unique: true, allowNull: false },
+  description_am: { type: DataTypes.STRING, allowNull: false },
+  description_ru: { type: DataTypes.STRING, allowNull: false },
+  description_en: { type: DataTypes.STRING, allowNull: false },
 });
 
 const BrandCategorie = sequelize.define('brand_categorie', {

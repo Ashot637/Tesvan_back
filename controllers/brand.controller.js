@@ -1,4 +1,4 @@
-const { Brand } = require('../models/models');
+const { Brand, Device } = require('../models/models');
 
 class BrandController {
   async create(req, res) {
@@ -16,7 +16,16 @@ class BrandController {
 
   async getAll(req, res) {
     try {
-      const brands = await Brand.findAll();
+      const { categorieId } = req.query;
+      let brands;
+      if (+categorieId) {
+        let devices = await Device.findAll({ where: { categorieId } });
+        let uniqueValues = devices.map((device) => device.brandId);
+        uniqueValues = [...new Set(uniqueValues.flat())];
+        brands = await Brand.findAll({ where: { id: uniqueValues } });
+      } else {
+        brands = await Brand.findAll();
+      }
       return res.send(brands);
     } catch (e) {
       res.status(500).json({ succes: false });
