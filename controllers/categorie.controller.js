@@ -18,31 +18,28 @@ class CategorieController {
     try {
       const language = req.headers.language;
 
-      const categories = await Categorie.findAll();
+      let categories = await Categorie.findAll();
 
       if (language) {
         if (language === 'am') {
           categories = categories.map((categorie) => {
-            let { title_am, title_ru, title_en, ...data } = categorie.dataValues;
             return {
-              ...data,
-              title: title_am,
+              ...categorie.dataValues,
+              title: categorie.title_am,
             };
           });
         } else if (language === 'ru') {
           categories = categories.map((categorie) => {
-            let { title_am, title_ru, title_en, ...data } = categorie.dataValues;
             return {
-              ...data,
-              title: title_ru,
+              ...categorie.dataValues,
+              title: categorie.title_ru,
             };
           });
         } else {
           categories = categories.map((categorie) => {
-            let { title_am, title_ru, title_en, ...data } = categorie.dataValues;
             return {
-              ...data,
-              title: title_en,
+              ...categorie.dataValues,
+              title: categorie.title_en,
             };
           });
         }

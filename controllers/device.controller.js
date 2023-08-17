@@ -458,19 +458,28 @@ class DeviceController {
   async getAllFiltres(req, res) {
     try {
       const { categorieId } = req.query;
-      let filterTypes = await Device.findAll({
+      const { language } = req.headers;
+
+      let devices = await Device.findAll({
         where: {
           categorieId,
         },
         include: [{ model: DeviceInfo, as: 'info' }],
       });
-      let uniqueValues = filterTypes.map((e) => e.info.map((i) => i.title));
+      if (language === 'am') {
+        devices = getArmenainValues(devices);
+      } else if (language === 'ru') {
+        devices = getRussianValues(devices);
+      } else {
+        devices = getEnglishValues(devices);
+      }
+      let uniqueValues = devices.map((e) => e.info.map((i) => i.title));
       uniqueValues = [...new Set(uniqueValues.flat())];
       let obj = {};
       for (let title of uniqueValues) {
         obj[title] = [];
       }
-      filterTypes.forEach((device) =>
+      devices.forEach((device) =>
         device.info.forEach((i) => {
           let key = i.title;
           obj[key] = [...obj[key], i.description];
