@@ -20,15 +20,15 @@ const Device = sequelize.define('device', {
 
 const Categorie = sequelize.define('categorie', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  title_am: { type: DataTypes.STRING, unique: true, allowNull: false },
-  title_ru: { type: DataTypes.STRING, unique: true, allowNull: false },
-  title_en: { type: DataTypes.STRING, unique: true, allowNull: false },
+  title_am: { type: DataTypes.STRING, allowNull: false },
+  title_ru: { type: DataTypes.STRING, allowNull: false },
+  title_en: { type: DataTypes.STRING, allowNull: false },
   img: { type: DataTypes.STRING, allowNull: false },
 });
 
 const Brand = sequelize.define('brand', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  title: { type: DataTypes.STRING, unique: true, allowNull: false },
+  title: { type: DataTypes.STRING, allowNull: false },
   img: { type: DataTypes.STRING, allowNull: false },
 });
 

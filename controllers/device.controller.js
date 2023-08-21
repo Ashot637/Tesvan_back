@@ -425,10 +425,18 @@ class DeviceController {
   async getMany(req, res) {
     try {
       const { ids } = req.body;
-      const devices = await Device.findAll({
+      const { language } = req.headers;
+      let devices = await Device.findAll({
         where: { id: ids },
         include: [{ model: DeviceInfo, as: 'info' }],
       });
+      if (language === 'am') {
+        devices = getArmenainValues(devices);
+      } else if (language === 'ru') {
+        devices = getRussianValues(devices);
+      } else {
+        devices = getEnglishValues(devices);
+      }
       return res.json(devices);
     } catch (e) {
       res.status(500).json({ succes: false });
@@ -573,12 +581,12 @@ class DeviceController {
 
       const obj = {};
 
-      let result = devices.map((e) => {
-        return e.info.map((item, i) => {
+      let result = devices.map((device) => {
+        return device.info.map((item, i) => {
           obj[item.title] = item.description;
-          return i === e.info.length - 1 &&
+          return i === device.info.length - 1 &&
             Object.entries(data).every(([key, value]) => obj[key] === value)
-            ? e
+            ? device
             : null;
         });
       });
