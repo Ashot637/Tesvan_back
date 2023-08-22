@@ -579,9 +579,8 @@ class DeviceController {
         }
       }
 
-      const obj = {};
-
       let result = devices.map((device) => {
+        const obj = {};
         return device.info.map((item, i) => {
           obj[item.title] = item.description;
           return i === device.info.length - 1 &&
