@@ -5,6 +5,7 @@ const router = new Router();
 
 router.post('/auth/registration', adminController.registration);
 router.post('/auth/login', adminController.login);
-router.post('/auth', checkRole, adminController.check);
+router.post('/auth', checkRole, adminController.authMe);
+router.post('/verifyCode', adminController.checkCode);
 
 module.exports = router;

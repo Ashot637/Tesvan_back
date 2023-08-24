@@ -1,6 +1,45 @@
 const { User } = require('../models/models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+
+let code;
+let currentUser;
+
+function sendEmail(req, res) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 't37378844@gmail.com',
+        pass: 'mliwqgdownkuesms',
+      },
+    });
+
+    code = Math.floor(Math.random() * 899999 + 100000);
+
+    const mailOptions = {
+      from: 't37378844@gmail.com',
+      to: 'ashotmartirosyan637@gmail.com',
+      subject: 'Test',
+      text: `${code}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email successfully sent');
+      }
+    });
+  } catch (e) {
+    res.status(500).json({ succes: false });
+    console.log(e);
+  }
+}
 
 class AdminController {
   async registration(req, res) {
@@ -12,6 +51,7 @@ class AdminController {
       }
       const passwordHash = await bcrypt.hash(password, 5);
       const user = await User.create({ email, password: passwordHash, role });
+
       const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
         process.env.SECRET_KEY,
@@ -29,14 +69,25 @@ class AdminController {
   async login(req, res) {
     try {
       const { email, password } = req.body;
-      const user = await User.findOne({ where: { email } });
-      if (!user) {
+      currentUser = await User.findOne({ where: { email } });
+      if (!currentUser) {
         return res.status(500).json({ succes: false });
       }
-      const comparePassword = bcrypt.compareSync(password, user.password);
+      const comparePassword = bcrypt.compareSync(password, currentUser.password);
       if (!comparePassword) {
         return res.status(500).json({ succes: false });
       }
+      sendEmail(req, res);
+      return res.json({ waitingForCode: true });
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async authMe(req, res) {
+    try {
+      const user = req.user;
       const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
         process.env.SECRET_KEY,
@@ -51,17 +102,20 @@ class AdminController {
     }
   }
 
-  async check(req, res) {
+  async checkCode(req, res) {
     try {
-      const user = req.user;
-      const token = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        process.env.SECRET_KEY,
-        {
-          expiresIn: '24h',
-        },
-      );
-      res.send(token);
+      const { numbers } = req.body;
+      if (+numbers === +code) {
+        const token = jwt.sign(
+          { id: currentUser.id, email: currentUser.email, role: currentUser.role },
+          process.env.SECRET_KEY,
+          {
+            expiresIn: '24h',
+          },
+        );
+        return res.send(token);
+      }
+      return res.status(500).json({ succes: false });
     } catch (e) {
       res.status(500).json({ succes: false });
       console.log(e);
