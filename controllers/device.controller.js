@@ -122,6 +122,7 @@ class DeviceController {
         maxPrice,
         sortName,
         sortFollowing,
+        byId,
       } = req.query;
       const { language } = req.headers;
 
@@ -136,6 +137,16 @@ class DeviceController {
 
       let offset = page * limit - limit;
       let devices;
+      if (byId) {
+        devices = await Device.findAll({
+          order: [['id', 'ASC']],
+          limit,
+          offset,
+        });
+        let length = (await Device.findAll()).length;
+        let pagination = Math.ceil(length / limit);
+        return res.send({ devices, pagination });
+      }
       if (!typeId && !brandId && !categorieId) {
         devices = await Device.findAll({
           where: {
@@ -513,7 +524,7 @@ class DeviceController {
   async filter(req, res) {
     try {
       let {
-        brandId,
+        brandIds,
         categorieId,
         limit,
         page,
@@ -525,7 +536,6 @@ class DeviceController {
       } = req.query;
       const { language } = req.headers;
 
-      brandId = +brandId;
       categorieId = +categorieId;
       page = page || 1;
       limit = limit || 12;
@@ -536,7 +546,7 @@ class DeviceController {
 
       let offset = page * limit - limit;
       let devices;
-      if (!brandId) {
+      if (!brandIds?.length) {
         devices = await Device.findAll({
           where: {
             categorieId,
@@ -558,16 +568,18 @@ class DeviceController {
           devices = getEnglishValues(devices);
         }
       }
-      if (brandId) {
+      if (brandIds?.length) {
         devices = await Device.findAll({
           where: {
-            brandId,
             categorieId,
             price: {
               [Op.and]: {
                 [Op.gte]: minPrice,
                 [Op.lte]: maxPrice,
               },
+            },
+            brandId: {
+              [Op.in]: brandIds,
             },
           },
           order: [[sortName, sortFollowing]],
@@ -587,7 +599,7 @@ class DeviceController {
         return device.info.map((item, i) => {
           obj[item.title] = item.description;
           return i === device.info.length - 1 &&
-            Object.entries(data).every(([key, value]) => obj[key] === value)
+            Object.entries(data).every(([key, value]) => value.includes(obj[key]))
             ? device
             : null;
         });
