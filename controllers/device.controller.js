@@ -98,6 +98,7 @@ class DeviceController {
             description_am: i.description_am,
             description_ru: i.description_ru,
             deviceId: device.id,
+            deviceInfoCategorieId: i.deviceInfoCategorieId,
           });
         });
       }
@@ -382,6 +383,7 @@ class DeviceController {
                 description_am: i.description_am,
                 description_ru: i.description_ru,
                 deviceId: device.id,
+                deviceInfoCategorieId: i.deviceInfoCategorieId,
               },
               {
                 where: {
@@ -398,6 +400,7 @@ class DeviceController {
               description_am: i.description_am,
               description_ru: i.description_ru,
               deviceId: device.id,
+              deviceInfoCategorieId: i.deviceInfoCategorieId,
             });
           }
         });
@@ -603,7 +606,8 @@ class DeviceController {
   async uploadImage(req, res) {
     try {
       const { img } = req.files;
-      const fileName = uuid.v4() + '.png';
+      const type = img.mimetype.split('/')[1];
+      const fileName = uuid.v4() + '.' + type;
       img.mv(path.resolve(__dirname, '..', 'static', fileName));
 
       return res.json({ url: fileName });

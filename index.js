@@ -6,6 +6,7 @@ const fileUpload = require('express-fileupload');
 const path = require('path');
 const models = require('./models/models');
 const deviceRouter = require('./routes/device.routes');
+const deviceInfoCategorieRouter = require('./routes/deviceInfoCategorie.routes');
 const brandRouter = require('./routes/brand.routes');
 const categorieRouter = require('./routes/categorie.routes');
 const contactMessageRouter = require('./routes/contactMessage.routes');
@@ -29,6 +30,7 @@ app.use('/api', brandRouter);
 app.use('/api', categorieRouter);
 app.use('/api', contactMessageRouter);
 app.use('/api', ordersRouter);
+app.use('/api', deviceInfoCategorieRouter);
 
 app.use('/api/img', headerImageRouter);
 app.use('/api/img', sliderImageRouter);

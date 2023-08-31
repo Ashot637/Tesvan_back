@@ -42,6 +42,13 @@ const DeviceInfo = sequelize.define('device_info', {
   description_en: { type: DataTypes.STRING, allowNull: false },
 });
 
+const DeviceInfoCategorie = sequelize.define('device_info_categorie', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  title_am: { type: DataTypes.STRING, allowNull: false },
+  title_ru: { type: DataTypes.STRING, allowNull: false },
+  title_en: { type: DataTypes.STRING, allowNull: false },
+});
+
 const BrandCategorie = sequelize.define('brand_categorie', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
 });
@@ -92,6 +99,9 @@ Device.belongsTo(Brand);
 Device.hasMany(DeviceInfo, { as: 'info' });
 DeviceInfo.belongsTo(Device);
 
+DeviceInfoCategorie.hasMany(DeviceInfo);
+DeviceInfo.belongsTo(DeviceInfoCategorie);
+
 Categorie.belongsToMany(Brand, { through: BrandCategorie });
 Brand.belongsToMany(Categorie, { through: BrandCategorie });
 
@@ -107,6 +117,7 @@ module.exports = {
   Categorie,
   Brand,
   DeviceInfo,
+  DeviceInfoCategorie,
   BrandCategorie,
   ContactMessage,
   Orders,
