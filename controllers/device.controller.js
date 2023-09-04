@@ -112,34 +112,18 @@ class DeviceController {
 
   async getAll(req, res) {
     try {
-      let {
-        typeId,
-        brandId,
-        categorieId,
-        limit,
-        page,
-        minPrice,
-        maxPrice,
-        sortName,
-        sortFollowing,
-        byId,
-      } = req.query;
+      let { typeId, categorieId, limit, byId, page } = req.query;
       const { language } = req.headers;
 
-      brandId = +brandId;
       categorieId = +categorieId;
       page = page || 1;
       limit = limit || 12;
-      minPrice = +minPrice || 0;
-      maxPrice = +maxPrice || 2000000;
-      sortName = sortName || 'price';
-      sortFollowing = sortFollowing || 'DESC';
 
       let offset = page * limit - limit;
       let devices;
       if (byId) {
         devices = await Device.findAll({
-          order: [['id', 'ASC']],
+          order: [['id', 'DESC']],
           limit,
           offset,
         });
@@ -147,16 +131,9 @@ class DeviceController {
         let pagination = Math.ceil(length / limit);
         return res.send({ devices, pagination });
       }
-      if (!typeId && !brandId && !categorieId) {
+      if (!typeId && !categorieId) {
         devices = await Device.findAll({
-          where: {
-            price: {
-              [Op.and]: {
-                [Op.gte]: minPrice,
-                [Op.lte]: maxPrice,
-              },
-            },
-          },
+          order: [['quantity', 'DESC']],
           include: [{ model: DeviceInfo, as: 'info' }],
           limit,
           offset,
@@ -174,13 +151,8 @@ class DeviceController {
         devices = await Device.findAll({
           where: {
             typeId,
-            price: {
-              [Op.and]: {
-                [Op.gte]: minPrice,
-                [Op.lte]: maxPrice,
-              },
-            },
           },
+          order: [['quantity', 'DESC']],
           include: [{ model: DeviceInfo, as: 'info' }],
           limit,
           offset,
@@ -194,42 +166,12 @@ class DeviceController {
         }
         return res.send(devices);
       }
-      if (brandId && !categorieId) {
-        devices = await Device.findAll({
-          where: {
-            brandId,
-            price: {
-              [Op.and]: {
-                [Op.gte]: minPrice,
-                [Op.lte]: maxPrice,
-              },
-            },
-          },
-          order: [[sortName, sortFollowing]],
-          include: [{ model: DeviceInfo, as: 'info' }],
-          limit,
-          offset,
-        });
-        if (language === 'am') {
-          devices = getArmenainValues(devices);
-        } else if (language === 'ru') {
-          devices = getRussianValues(devices);
-        } else {
-          devices = getEnglishValues(devices);
-        }
-      }
-      if (!brandId && categorieId) {
+      if (categorieId) {
         devices = await Device.findAll({
           where: {
             categorieId,
-            price: {
-              [Op.and]: {
-                [Op.gte]: minPrice,
-                [Op.lte]: maxPrice,
-              },
-            },
           },
-          order: [[sortName, sortFollowing]],
+          order: [['quantity', 'DESC']],
           include: [{ model: DeviceInfo, as: 'info' }],
           limit,
           offset,
@@ -242,32 +184,6 @@ class DeviceController {
           devices = getEnglishValues(devices);
         }
       }
-      if (brandId && categorieId) {
-        devices = await Device.findAll({
-          where: {
-            brandId,
-            categorieId,
-            price: {
-              [Op.and]: {
-                [Op.gte]: minPrice,
-                [Op.lte]: maxPrice,
-              },
-            },
-          },
-          order: [[sortName, sortFollowing]],
-          include: [{ model: DeviceInfo, as: 'info' }],
-          limit,
-          offset,
-        });
-        if (language === 'am') {
-          devices = getArmenainValues(devices);
-        } else if (language === 'ru') {
-          devices = getRussianValues(devices);
-        } else {
-          devices = getEnglishValues(devices);
-        }
-      }
-
       return res.send(devices);
     } catch (e) {
       res.status(500).json({ succes: false });

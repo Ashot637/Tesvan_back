@@ -1,4 +1,5 @@
 const { Orders, Device } = require('../models/models');
+const { Op } = require('sequelize');
 
 class OrdersController {
   async create(req, res) {
@@ -19,6 +20,16 @@ class OrdersController {
         delivery,
       });
       devices = JSON.parse(devices);
+      let currentDevices = await Device.findAll({
+        where: {
+          id: {
+            [Op.in]: devices.map((device) => device.id),
+          },
+        },
+      });
+      if (currentDevices?.find((device) => device.quantity === 0)) {
+        return res.status(409).json({ quantity: 0 });
+      }
       devices.map((device) => {
         Device.decrement('quantity', { by: device.count, where: { id: device.id } });
       });

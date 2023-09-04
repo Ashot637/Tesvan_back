@@ -4,7 +4,7 @@ const router = new Router();
 const checkRole = require('../middleware/checkRole');
 
 router.get('/contacts', checkRole, contactMessageController.getAll);
-router.post('/contacts', checkRole, contactMessageController.create);
+router.post('/contacts', contactMessageController.create);
 router.delete('/contacts/:id', checkRole, contactMessageController.deleteOne);
 
 module.exports = router;
