@@ -1,5 +1,6 @@
 const { ContactMessage } = require('../models/models');
 const nodemailer = require('nodemailer');
+const path = require('path');
 
 class ContactMessageController {
   async create(req, res) {
@@ -20,8 +21,22 @@ class ContactMessageController {
       const mailOptions = {
         from: 't37378844@gmail.com',
         to: `${email}`,
-        subject: 'Test',
-        text: `${name}, We successfully get your message)`,
+        subject: 'Dear ' + name + '!',
+        html: `
+        <div style="width: 100%; height: 350px; background: #12222d; padding-top: 30px; text-align: center">
+          <img src="cid:letter" alt="" width="200" height="200">
+          <h1 style="color: #F4B41A">Thank you for contacting us!</h1>
+          <h3 style="color: white">We have received your message! <br />
+    We will reach you out imminently.
+         </h3>
+        </div>`,
+        attachments: [
+          {
+            filename: 'letter.png',
+            path: path.resolve(__dirname, '..', 'public', 'letter.png'),
+            cid: 'letter',
+          },
+        ],
       };
 
       transporter.sendMail(mailOptions, (error, info) => {

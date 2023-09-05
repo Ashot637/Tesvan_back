@@ -7,8 +7,23 @@ class OrdersController {
       let { devices, name, surname, phone, email, message, address, region, payment, delivery } =
         req.body;
       message = message || '';
+      devices = JSON.parse(devices);
+      let currentDevices = await Device.findAll({
+        where: {
+          id: {
+            [Op.in]: devices.map((device) => device.id),
+          },
+        },
+      });
+      if (
+        currentDevices?.find(
+          (device) => device.quantity < devices.find((d) => d.id === device.id)?.count,
+        )
+      ) {
+        return res.status(409).json({ success: false });
+      }
       const order = await Orders.create({
-        devices,
+        devices: JSON.stringify(devices),
         name,
         surname,
         phone,
@@ -19,21 +34,10 @@ class OrdersController {
         payment,
         delivery,
       });
-      devices = JSON.parse(devices);
-      let currentDevices = await Device.findAll({
-        where: {
-          id: {
-            [Op.in]: devices.map((device) => device.id),
-          },
-        },
-      });
-      if (currentDevices?.find((device) => device.quantity === 0)) {
-        return res.status(409).json({ quantity: 0 });
-      }
       devices.map((device) => {
         Device.decrement('quantity', { by: device.count, where: { id: device.id } });
       });
-      res.send(order);
+      res.send({ success: true });
     } catch (e) {
       res.status(500).json({ succes: false });
       console.log(e);

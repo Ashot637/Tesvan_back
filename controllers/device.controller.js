@@ -123,7 +123,7 @@ class DeviceController {
       let devices;
       if (byId) {
         devices = await Device.findAll({
-          order: [['id', 'DESC']],
+          order: [['id', 'ASC']],
           limit,
           offset,
         });
