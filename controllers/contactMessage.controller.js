@@ -23,10 +23,10 @@ class ContactMessageController {
         to: `${email}`,
         subject: 'Dear ' + name + '!',
         html: `
-        <div style="width: 100%; height: 350px; background: #12222d; padding-top: 30px; text-align: center">
+        <div style="width: 100%; height: 420px; background: #12222d; padding-top: 30px; text-align: center">
           <img src="cid:letter" alt="" width="200" height="200">
           <h1 style="color: #F4B41A">Thank you for contacting us!</h1>
-          <h3 style="color: white">We have received your message! <br />
+          <h3 style="color: white">Dear ${name}!<br>We have received your message! <br />
     We will reach you out imminently.
          </h3>
         </div>`,
