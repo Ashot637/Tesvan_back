@@ -14,7 +14,7 @@ class ContactMessageController {
 
   async getAll(req, res) {
     try {
-      const contactMessages = await ContactMessage.findAll();
+      const contactMessages = await ContactMessage.findAll({ order: [['id', 'ASC']] });
       res.send(contactMessages);
     } catch (e) {
       res.status(500).json({ succes: false });

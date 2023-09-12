@@ -119,7 +119,7 @@ class OrdersController {
 
   async getAll(req, res) {
     try {
-      const orders = await Orders.findAll();
+      const orders = await Orders.findAll({ order: [['id', 'ASC']] });
       res.send(orders);
     } catch (e) {
       res.status(500).json({ succes: false });
@@ -283,7 +283,6 @@ Your order is on the way. <br> After few days You can get it.
             ],
           };
           break;
-        //////////////////////////////////////////////////////////////////////////
         case 'picked':
           mailOptions = {
             from: 't37378844@gmail.com',
