@@ -18,7 +18,7 @@ class CategorieController {
     try {
       const language = req.headers.language;
 
-      let categories = await Categorie.findAll();
+      let categories = await Categorie.findAll({ order: [['id', 'ASC']] });
 
       if (language) {
         if (language === 'am') {

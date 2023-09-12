@@ -72,11 +72,12 @@ const getEnglishValues = (devices) => {
 class DeviceController {
   async create(req, res) {
     try {
-      let { title, price, oldPrice, typeId, brandId, categorieId, info, quantity, images } =
+      let { code, title, price, oldPrice, typeId, brandId, categorieId, info, quantity, images } =
         req.body;
 
       images = images.split(',');
       const device = await Device.create({
+        code,
         title,
         price,
         oldPrice,
@@ -272,7 +273,7 @@ class DeviceController {
 
   async updateOne(req, res) {
     try {
-      let { title, price, oldPrice, typeId, brandId, categorieId, info, quantity, images } =
+      let { code, title, price, oldPrice, typeId, brandId, categorieId, info, quantity, images } =
         req.body;
       const { id } = req.params;
 
@@ -281,6 +282,7 @@ class DeviceController {
       const device = await Device.findOne({ where: { id } });
       await Device.update(
         {
+          code,
           title,
           price,
           oldPrice,

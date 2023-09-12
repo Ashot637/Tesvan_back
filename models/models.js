@@ -10,6 +10,7 @@ const User = sequelize.define('user', {
 
 const Device = sequelize.define('device', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  code: { type: DataTypes.STRING, allowNull: false },
   title: { type: DataTypes.STRING, allowNull: false },
   price: { type: DataTypes.INTEGER, allowNull: false },
   oldPrice: { type: DataTypes.INTEGER, allowNull: false },

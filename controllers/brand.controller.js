@@ -19,12 +19,12 @@ class BrandController {
       const { categorieId } = req.query;
       let brands;
       if (+categorieId) {
-        let devices = await Device.findAll({ where: { categorieId } });
+        let devices = await Device.findAll({ where: { categorieId }, order: [['id', 'ASC']] });
         let uniqueValues = devices.map((device) => device.brandId);
         uniqueValues = [...new Set(uniqueValues.flat())];
         brands = await Brand.findAll({ where: { id: uniqueValues } });
       } else {
-        brands = await Brand.findAll();
+        brands = await Brand.findAll({ order: [['id', 'ASC']] });
       }
       return res.send(brands);
     } catch (e) {
