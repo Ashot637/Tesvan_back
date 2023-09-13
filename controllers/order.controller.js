@@ -181,9 +181,9 @@ class OrdersController {
           mailOptions = {
             from: 't37378844@gmail.com',
             to: `${email}`,
-            subject: 'Dear ' + name + '!',
+            subject: 'Dear ' + name + '123!',
             html: `
-            <div style="width: 100%; height: 550px; background: #12222d; padding-top: 30px; text-align: center">
+            <div style="width: 100%; height: 570px; background: #12222d; padding-top: 30px; text-align: center">
       <img src="cid:order" alt="" width="150" height="150">
       <h1 style="color: #F4B41A">Your order is on the way!</h1>
       <h3 style="color: white; margin-bottom: 30px">Dear ${name}!<br>
@@ -234,9 +234,9 @@ Your order is on the way. <br> After few days You can get it.
           mailOptions = {
             from: 't37378844@gmail.com',
             to: `${email}`,
-            subject: 'Dear ' + name + '!',
+            subject: 'Dear ' + name + '12kj3!',
             html: `
-            <div style="width: 100%; height: 550px; background: #12222d; padding-top: 30px; text-align: center">
+            <div style="width: 100%; height: 570px; background: #12222d; padding-top: 30px; text-align: center">
       <img src="cid:order" alt="" width="150" height="150">
       <h1 style="color: #F4B41A">Your order is delivered!</h1>
       <h3 style="color: white; margin-bottom: 30px">Dear ${name}!<br>
@@ -287,9 +287,9 @@ Your order is on the way. <br> After few days You can get it.
           mailOptions = {
             from: 't37378844@gmail.com',
             to: `${email}`,
-            subject: 'Dear ' + name + '!',
+            subject: 'Dear ' + name + '123!',
             html: `
-            <div style="width: 100%; height: 550px; background: #12222d; padding-top: 30px; text-align: center">
+            <div style="width: 100%; height: 570px; background: #12222d; padding-top: 30px; text-align: center">
       <img src="cid:order" alt="" width="150" height="150">
       <h1 style="color: #F4B41A">Your order is now in your hands!</h1>
       <h3 style="color: white; margin-bottom: 30px">Dear ${name}!<br>
