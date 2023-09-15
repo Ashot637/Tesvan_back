@@ -65,6 +65,7 @@ const ContactMessage = sequelize.define('contact_message', {
 
 const Orders = sequelize.define('orders', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  total: { type: DataTypes.INTEGER, allowNull: false },
   devices: { type: DataTypes.STRING, allowNull: false },
   name: { type: DataTypes.STRING, allowNull: false },
   surname: { type: DataTypes.STRING, allowNull: false },
@@ -89,6 +90,14 @@ const SliderImage = sequelize.define('slider_image', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   img: { type: DataTypes.STRING, allowNull: false },
   title: { type: DataTypes.STRING, allowNull: false },
+});
+
+const Region = sequelize.define('regions', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  title_am: { type: DataTypes.STRING, allowNull: false },
+  title_ru: { type: DataTypes.STRING, allowNull: false },
+  title_en: { type: DataTypes.STRING, allowNull: false },
+  price: { type: DataTypes.INTEGER, allowNull: false },
 });
 
 Categorie.hasMany(Device);
@@ -124,4 +133,5 @@ module.exports = {
   Orders,
   HeaderImage,
   SliderImage,
+  Region,
 };

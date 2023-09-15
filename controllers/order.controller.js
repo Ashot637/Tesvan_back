@@ -6,8 +6,19 @@ const path = require('path');
 class OrdersController {
   async create(req, res) {
     try {
-      let { devices, name, surname, phone, email, message, address, region, payment, delivery } =
-        req.body;
+      let {
+        devices,
+        total,
+        name,
+        surname,
+        phone,
+        email,
+        message,
+        address,
+        region,
+        payment,
+        delivery,
+      } = req.body;
       message = message || '';
       devices = JSON.parse(devices);
       let currentDevices = await Device.findAll({
@@ -26,6 +37,7 @@ class OrdersController {
       }
       const order = await Orders.create({
         devices: JSON.stringify(devices),
+        total,
         name,
         surname,
         phone,
@@ -54,7 +66,7 @@ class OrdersController {
       const mailOptions = {
         from: 't37378844@gmail.com',
         to: `${email}`,
-        subject: 'Dear ' + name + '!',
+        subject: 'Your order has completed successfully!',
         html: `
         <div style="width: 100%; height: 550px; background: #12222d; padding-top: 30px; text-align: center">
   <img src="cid:order" alt="" width="150" height="150">
@@ -181,7 +193,7 @@ class OrdersController {
           mailOptions = {
             from: 't37378844@gmail.com',
             to: `${email}`,
-            subject: 'Dear ' + name + '123!',
+            subject: 'Your order is on the way!',
             html: `
             <div style="width: 100%; height: 570px; background: #12222d; padding-top: 30px; text-align: center">
       <img src="cid:order" alt="" width="150" height="150">
@@ -234,7 +246,7 @@ Your order is on the way. <br> After few days You can get it.
           mailOptions = {
             from: 't37378844@gmail.com',
             to: `${email}`,
-            subject: 'Dear ' + name + '12kj3!',
+            subject: 'Your order is delivered!',
             html: `
             <div style="width: 100%; height: 570px; background: #12222d; padding-top: 30px; text-align: center">
       <img src="cid:order" alt="" width="150" height="150">
@@ -287,7 +299,7 @@ Your order is on the way. <br> After few days You can get it.
           mailOptions = {
             from: 't37378844@gmail.com',
             to: `${email}`,
-            subject: 'Dear ' + name + '123!',
+            subject: 'Your order is now in your hands!',
             html: `
             <div style="width: 100%; height: 570px; background: #12222d; padding-top: 30px; text-align: center">
       <img src="cid:order" alt="" width="150" height="150">

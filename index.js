@@ -13,6 +13,7 @@ const contactMessageRouter = require('./routes/contactMessage.routes');
 const ordersRouter = require('./routes/order.routes');
 const headerImageRouter = require('./routes/headerImage.routes');
 const sliderImageRouter = require('./routes/sliderImage.routes');
+const regionRouter = require('./routes/region.routes');
 const adminRouter = require('./routes/admin.routes');
 const bodyParser = require('body-parser');
 
@@ -31,6 +32,7 @@ app.use('/api', categorieRouter);
 app.use('/api', contactMessageRouter);
 app.use('/api', ordersRouter);
 app.use('/api', deviceInfoCategorieRouter);
+app.use('/api', regionRouter);
 
 app.use('/api/img', headerImageRouter);
 app.use('/api/img', sliderImageRouter);
