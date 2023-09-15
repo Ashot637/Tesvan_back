@@ -5,6 +5,7 @@ const router = new Router();
 
 router.get('/regions', regionController.getAll);
 router.post('/regions', checkRole, regionController.create);
+router.post('/regions/many', checkRole, regionController.createMany);
 router.get('/region/:id', checkRole, regionController.getOne);
 router.patch('/region/:id', checkRole, regionController.updateOne);
 router.delete('/region/:id', checkRole, regionController.deleteOne);

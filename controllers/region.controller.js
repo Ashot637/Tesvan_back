@@ -95,6 +95,34 @@ class RegionController {
       res.status(500).json({ success: false });
     }
   }
+
+  async createMany(req, res) {
+    try {
+      let { titles_en, titles_am, titles_ru } = req.body;
+
+      titles_en = titles_en.split(' ');
+      titles_am = titles_am.split(' ');
+      titles_ru = titles_ru.split(' ');
+
+      if (titles_en.length !== titles_am.length || titles_am.length !== titles_ru.length) {
+        return res.status(500).json({ message: 'Lengths are not equal' });
+      }
+
+      for (let i = 0; i < titles_am.length; i++) {
+        await Region.create({
+          title_en: titles_en[i],
+          title_am: titles_am[i],
+          title_ru: titles_ru[i],
+          price: 0,
+        });
+      }
+
+      res.send({ success: true });
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ success: false });
+    }
+  }
 }
 
 module.exports = new RegionController();
