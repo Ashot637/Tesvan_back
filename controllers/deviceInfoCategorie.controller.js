@@ -1,4 +1,4 @@
-const { DeviceInfoCategorie } = require('../models/models');
+const { DeviceInfoCategorie } = require("../models/models");
 
 class DeviceInfoCategorieController {
   async create(req, res) {
@@ -20,33 +20,14 @@ class DeviceInfoCategorieController {
 
   async getAll(req, res) {
     try {
-      const language = req.headers.language;
-
-      let deviceInfoCategories = await DeviceInfoCategorie.findAll();
-
+      const { language } = req.query;
+      let deviceInfoCategories;
       if (language) {
-        if (language === 'am') {
-          deviceInfoCategories = deviceInfoCategories.map((deviceInfoCategorie) => {
-            return {
-              ...deviceInfoCategorie.dataValues,
-              title: deviceInfoCategorie.title_am,
-            };
-          });
-        } else if (language === 'ru') {
-          deviceInfoCategories = deviceInfoCategories.map((deviceInfoCategorie) => {
-            return {
-              ...deviceInfoCategorie.dataValues,
-              title: deviceInfoCategorie.title_ru,
-            };
-          });
-        } else {
-          deviceInfoCategories = deviceInfoCategories.map((deviceInfoCategorie) => {
-            return {
-              ...deviceInfoCategorie.dataValues,
-              title: deviceInfoCategorie.title_en,
-            };
-          });
-        }
+        deviceInfoCategories = await DeviceInfoCategorie.findAll({
+          attributes: [[`title_${language}`, `title`], "id", "title_en"],
+        });
+      } else {
+        deviceInfoCategories = await DeviceInfoCategorie.findAll();
       }
       return res.send(deviceInfoCategories);
     } catch (e) {
@@ -58,25 +39,10 @@ class DeviceInfoCategorieController {
   async getOne(req, res) {
     try {
       const { id } = req.params;
-      const language = req.headers.language;
 
       const deviceInfoCategorie = await DeviceInfoCategorie.findOne({
         where: { id },
       });
-
-      if (language) {
-        if (language === 'am') {
-          var { title_am, title_ru, title_en, ...data } = deviceInfoCategorie.dataValues;
-          data.title = title_am;
-        } else if (language === 'ru') {
-          var { title_am, title_ru, title_en, ...data } = deviceInfoCategorie.dataValues;
-          data.title = title_ru;
-        } else {
-          var { title_am, title_ru, title_en, ...data } = deviceInfoCategorie.dataValues;
-          data.title = title_en;
-        }
-        return res.json(data);
-      }
 
       return res.json(deviceInfoCategorie);
     } catch (e) {
@@ -113,7 +79,7 @@ class DeviceInfoCategorieController {
           where: {
             id,
           },
-        },
+        }
       );
 
       return res.json({ success: true });

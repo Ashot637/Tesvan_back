@@ -1,73 +1,7 @@
 const { Op } = require('sequelize');
-const { Device, DeviceInfo } = require('../models/models');
+const { Device, DeviceInfo, Brand, Categorie } = require('../models/models');
 const uuid = require('uuid');
 const path = require('path');
-
-const getRussianValues = (devices) => {
-  devices = devices.map((device) => {
-    let newDevice = {
-      ...device.dataValues,
-      info: device.info.map((i) => {
-        let {
-          title_am,
-          title_en,
-          title_ru,
-          description_am,
-          description_en,
-          description_ru,
-          ...data
-        } = i.dataValues;
-        return { ...data, title: title_ru, description: description_ru };
-      }),
-    };
-    return newDevice;
-  });
-  return devices;
-};
-
-const getArmenainValues = (devices) => {
-  devices = devices.map((device) => {
-    let newDevice = {
-      ...device.dataValues,
-      info: device.info.map((i) => {
-        let {
-          title_am,
-          title_en,
-          title_ru,
-          description_am,
-          description_en,
-          description_ru,
-          ...data
-        } = i.dataValues;
-        return { ...data, title: title_am, description: description_am };
-      }),
-    };
-    return newDevice;
-  });
-  return devices;
-};
-
-const getEnglishValues = (devices) => {
-  devices = devices.map((device) => {
-    let newDevice = {
-      ...device.dataValues,
-      info: device.info.map((i) => {
-        let {
-          title_am,
-          title_en,
-          title_ru,
-          description_am,
-          description_en,
-          description_ru,
-          ...data
-        } = i.dataValues;
-        return { ...data, title: title_en, description: description_en };
-      }),
-    };
-    return newDevice;
-  });
-  return devices;
-};
 
 class DeviceController {
   async create(req, res) {
@@ -114,7 +48,7 @@ class DeviceController {
   async getAll(req, res) {
     try {
       let { typeId, categorieId, limit, byId, page } = req.query;
-      const { language } = req.headers;
+      const { language } = req.query;
 
       categorieId = +categorieId;
       page = page || 1;
@@ -127,26 +61,14 @@ class DeviceController {
           order: [['id', 'ASC']],
           limit,
           offset,
+          include: [
+            { model: Brand, as: 'brand' },
+            { model: Categorie, as: 'categorie' },
+          ],
         });
         let length = (await Device.findAll()).length;
         let pagination = Math.ceil(length / limit);
         return res.send({ devices, pagination });
-      }
-      if (!typeId && !categorieId) {
-        devices = await Device.findAll({
-          order: [['quantity', 'DESC']],
-          include: [{ model: DeviceInfo, as: 'info' }],
-          limit,
-          offset,
-        });
-        if (language === 'am') {
-          devices = getArmenainValues(devices);
-        } else if (language === 'ru') {
-          devices = getRussianValues(devices);
-        } else {
-          devices = getEnglishValues(devices);
-        }
-        return res.send(devices);
       }
       if (typeId) {
         devices = await Device.findAll({
@@ -154,17 +76,27 @@ class DeviceController {
             typeId,
           },
           order: [['quantity', 'DESC']],
-          include: [{ model: DeviceInfo, as: 'info' }],
+          include: [
+            {
+              model: DeviceInfo,
+              as: 'info',
+              attributes: [
+                [`title_${language}`, `title`],
+                [`description_${language}`, `description`],
+                'id',
+                'title_en',
+              ],
+            },
+            { model: Brand, as: 'brand' },
+            {
+              model: Categorie,
+              as: 'categorie',
+              attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+            },
+          ],
           limit,
           offset,
         });
-        if (language === 'am') {
-          devices = getArmenainValues(devices);
-        } else if (language === 'ru') {
-          devices = getRussianValues(devices);
-        } else {
-          devices = getEnglishValues(devices);
-        }
         return res.send(devices);
       }
       if (categorieId) {
@@ -173,17 +105,27 @@ class DeviceController {
             categorieId,
           },
           order: [['quantity', 'DESC']],
-          include: [{ model: DeviceInfo, as: 'info' }],
+          include: [
+            {
+              model: DeviceInfo,
+              as: 'info',
+              attributes: [
+                [`title_${language}`, `title`],
+                [`description_${language}`, `description`],
+                'id',
+                'title_en',
+              ],
+            },
+            { model: Brand, as: 'brand' },
+            {
+              model: Categorie,
+              as: 'categorie',
+              attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+            },
+          ],
           limit,
           offset,
         });
-        if (language === 'am') {
-          devices = getArmenainValues(devices);
-        } else if (language === 'ru') {
-          devices = getRussianValues(devices);
-        } else {
-          devices = getEnglishValues(devices);
-        }
       }
       return res.send(devices);
     } catch (e) {
@@ -195,61 +137,36 @@ class DeviceController {
   async getOne(req, res) {
     try {
       const { id } = req.params;
-      const { language } = req.headers;
-      let device = await Device.findOne({
-        where: { id },
-        include: [{ model: DeviceInfo, as: 'info' }],
-      });
+      const { language } = req.query;
+      let device;
       if (language) {
-        if (language === 'am') {
-          device = {
-            ...device.dataValues,
-            info: device.info.map((i) => {
-              let {
-                title_am,
-                title_en,
-                title_ru,
-                description_am,
-                description_en,
-                description_ru,
-                ...data
-              } = i.dataValues;
-              return { ...data, title: title_am, description: description_am };
-            }),
-          };
-        } else if (language === 'ru') {
-          device = {
-            ...device.dataValues,
-            info: device.info.map((i) => {
-              let {
-                title_am,
-                title_en,
-                title_ru,
-                description_am,
-                description_en,
-                description_ru,
-                ...data
-              } = i.dataValues;
-              return { ...data, title: title_ru, description: description_ru };
-            }),
-          };
-        } else {
-          device = {
-            ...device.dataValues,
-            info: device.info.map((i) => {
-              let {
-                title_am,
-                title_en,
-                title_ru,
-                description_am,
-                description_en,
-                description_ru,
-                ...data
-              } = i.dataValues;
-              return { ...data, title: title_en, description: description_en };
-            }),
-          };
-        }
+        device = await Device.findOne({
+          where: { id },
+          include: [
+            {
+              model: DeviceInfo,
+              as: 'info',
+              attributes: [
+                [`title_${language}`, `title`],
+                [`description_${language}`, `description`],
+                'id',
+                'title_en',
+                'deviceInfoCategorieId',
+              ],
+            },
+            { model: Brand, as: 'brand' },
+            {
+              model: Categorie,
+              as: 'categorie',
+              attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+            },
+          ],
+        });
+      } else {
+        device = await Device.findOne({
+          where: { id },
+          include: [{ model: DeviceInfo, as: 'info' }],
+        });
       }
       return res.json(device);
     } catch (e) {
@@ -357,18 +274,29 @@ class DeviceController {
   async getMany(req, res) {
     try {
       const { ids } = req.body;
-      const { language } = req.headers;
+      const { language } = req.query;
       let devices = await Device.findAll({
         where: { id: ids },
-        include: [{ model: DeviceInfo, as: 'info' }],
+        include: [
+          {
+            model: DeviceInfo,
+            as: 'info',
+            attributes: [
+              [`title_${language}`, `title`],
+              [`description_${language}`, `description`],
+              'id',
+              'title_en',
+              'deviceInfoCategorieId',
+            ],
+          },
+          { model: Brand, as: 'brand' },
+          {
+            model: Categorie,
+            as: 'categorie',
+            attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+          },
+        ],
       });
-      if (language === 'am') {
-        devices = getArmenainValues(devices);
-      } else if (language === 'ru') {
-        devices = getRussianValues(devices);
-      } else {
-        devices = getEnglishValues(devices);
-      }
       return res.json(devices);
     } catch (e) {
       res.status(500).json({ succes: false });
@@ -386,7 +314,13 @@ class DeviceController {
           },
         },
         limit: 3,
-        include: [{ model: DeviceInfo, as: 'info' }],
+        include: [
+          {
+            model: Categorie,
+            as: 'categorie',
+            attributes: ['title_en'],
+          },
+        ],
       });
       return res.json(devices);
     } catch (e) {
@@ -398,41 +332,37 @@ class DeviceController {
   async getAllFiltres(req, res) {
     try {
       const { categorieId } = req.query;
-      const { language } = req.headers;
+      const { language } = req.query;
 
       let devices = await Device.findAll({
         where: {
           categorieId,
         },
-        include: [{ model: DeviceInfo, as: 'info' }],
+        include: [
+          {
+            model: DeviceInfo,
+            as: 'info',
+          },
+        ],
       });
-      if (language === 'am') {
-        devices = getArmenainValues(devices);
-      } else if (language === 'ru') {
-        devices = getRussianValues(devices);
-      } else {
-        devices = getEnglishValues(devices);
-      }
-      let uniqueValues = devices.map((e) => e.info.map((i) => i.title));
-      uniqueValues = [...new Set(uniqueValues.flat())];
-      let obj = {};
-      for (let title of uniqueValues) {
-        obj[title] = [];
-      }
-      devices.forEach((device) =>
-        device.info.forEach((i) => {
-          let key = i.title;
-          obj[key] = [...obj[key], i.description];
-        }),
-      );
-      let arr = [];
-      for (let title in obj) {
-        arr.push({
-          title: title,
-          description: [...new Set(obj[title])],
+
+      const transformedData = {};
+
+      devices.forEach((device) => {
+        device.info.forEach((infoItem) => {
+          const title = infoItem[`title_${language}`];
+          const description = infoItem[`description_${language}`];
+          if (!transformedData[title]) {
+            transformedData[title] = [];
+          }
+          transformedData[title].push(description);
         });
-      }
-      return res.json(arr);
+      });
+      const resultArray = Object.keys(transformedData).map((title) => ({
+        title,
+        description: [...new Set(transformedData[title])],
+      }));
+      return res.json(resultArray);
     } catch (e) {
       res.status(500).json({ succes: false });
       console.log(e);
@@ -450,9 +380,9 @@ class DeviceController {
         maxPrice,
         sortName,
         sortFollowing,
+        language,
         ...data
       } = req.query;
-      const { language } = req.headers;
 
       categorieId = +categorieId;
       page = page || 1;
@@ -476,15 +406,19 @@ class DeviceController {
             },
           },
           order: [[sortName, sortFollowing]],
-          include: [{ model: DeviceInfo, as: 'info' }],
+          include: [
+            {
+              model: DeviceInfo,
+              as: 'info',
+            },
+            { model: Brand, as: 'brand' },
+            {
+              model: Categorie,
+              as: 'categorie',
+              attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+            },
+          ],
         });
-        if (language === 'am') {
-          devices = getArmenainValues(devices);
-        } else if (language === 'ru') {
-          devices = getRussianValues(devices);
-        } else {
-          devices = getEnglishValues(devices);
-        }
       }
       if (brandIds?.length) {
         devices = await Device.findAll({
@@ -501,31 +435,37 @@ class DeviceController {
             },
           },
           order: [[sortName, sortFollowing]],
-          include: [{ model: DeviceInfo, as: 'info' }],
+          include: [
+            {
+              model: DeviceInfo,
+              as: 'info',
+            },
+            { model: Brand, as: 'brand' },
+            {
+              model: Categorie,
+              as: 'categorie',
+              attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+            },
+          ],
         });
-        if (language === 'am') {
-          devices = getArmenainValues(devices);
-        } else if (language === 'ru') {
-          devices = getRussianValues(devices);
-        } else {
-          devices = getEnglishValues(devices);
-        }
       }
 
       let result = devices.map((device) => {
         const obj = {};
         return device.info.map((item, i) => {
-          obj[item.title] = item.description;
+          obj[item[`title_${language}`]] = item[`description_${language}`];
           return i === device.info.length - 1 &&
             Object.entries(data).every(([key, value]) => value.includes(obj[key]))
             ? device
             : null;
         });
       });
+
       result = result.flat();
       result = result.filter((e) => e);
       let pagination = Math.ceil(result.length / limit);
       result = result.slice(offset, offset + 12);
+
       return res.json({ result, pagination });
     } catch (e) {
       res.status(500).json({ succes: false });

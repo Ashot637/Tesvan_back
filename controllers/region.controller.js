@@ -1,4 +1,4 @@
-const { Region } = require('../models/models');
+const { Region } = require("../models/models");
 
 class RegionController {
   async create(req, res) {
@@ -19,32 +19,19 @@ class RegionController {
 
   async getAll(req, res) {
     try {
-      const { language } = req.headers;
-      let regions = await Region.findAll({});
-
+      const { language } = req.query;
+      let regions;
       if (language) {
-        if (language === 'am') {
-          regions = regions.map((region) => {
-            return {
-              ...region.dataValues,
-              title: region.title_am,
-            };
-          });
-        } else if (language === 'ru') {
-          regions = regions.map((region) => {
-            return {
-              ...region.dataValues,
-              title: region.title_ru,
-            };
-          });
-        } else {
-          regions = regions.map((region) => {
-            return {
-              ...region.dataValues,
-              title: region.title_en,
-            };
-          });
-        }
+        regions = await Region.findAll({
+          attributes: [
+            [`title_${language}`, `title`],
+            "id",
+            "title_en",
+            "price",
+          ],
+        });
+      } else {
+        regions = await Region.findAll({});
       }
 
       res.send(regions);
@@ -76,7 +63,7 @@ class RegionController {
           title_ru,
           price,
         },
-        { where: { id } },
+        { where: { id } }
       );
       res.send({ success: true });
     } catch (e) {
@@ -100,12 +87,15 @@ class RegionController {
     try {
       let { titles_en, titles_am, titles_ru } = req.body;
 
-      titles_en = titles_en.split(' ');
-      titles_am = titles_am.split(' ');
-      titles_ru = titles_ru.split(' ');
+      titles_en = titles_en.split(" ");
+      titles_am = titles_am.split(" ");
+      titles_ru = titles_ru.split(" ");
 
-      if (titles_en.length !== titles_am.length || titles_am.length !== titles_ru.length) {
-        return res.status(500).json({ message: 'Lengths are not equal' });
+      if (
+        titles_en.length !== titles_am.length ||
+        titles_am.length !== titles_ru.length
+      ) {
+        return res.status(500).json({ message: "Lengths are not equal" });
       }
 
       for (let i = 0; i < titles_am.length; i++) {

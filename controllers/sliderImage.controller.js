@@ -1,4 +1,4 @@
-const { SliderImage } = require('../models/models');
+const { SliderImage, Device, Categorie } = require("../models/models");
 
 class SliderImageController {
   async create(req, res) {
@@ -16,7 +16,9 @@ class SliderImageController {
 
   async getAll(req, res) {
     try {
-      const images = await SliderImage.findAll();
+      const images = await SliderImage.findAll({
+        include: [{ model: Device, as: "device", include: [Categorie] }],
+      });
       return res.send(images);
     } catch (e) {
       res.status(500).json({ succes: false });
@@ -29,6 +31,7 @@ class SliderImageController {
       const { id } = req.params;
       const sliderImage = await SliderImage.findOne({
         where: { id },
+        include: [{ model: Device, as: "device" }],
       });
       return res.json(sliderImage);
     } catch (e) {
@@ -65,7 +68,7 @@ class SliderImageController {
           where: {
             id,
           },
-        },
+        }
       );
 
       return res.json({ success: true });

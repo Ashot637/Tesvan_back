@@ -1,11 +1,16 @@
-const { Categorie } = require('../models/models');
+const { Categorie } = require("../models/models");
 
 class CategorieController {
   async create(req, res) {
     try {
       const { title_am, title_ru, title_en, img } = req.body;
 
-      const categorie = await Categorie.create({ title_am, title_ru, title_en, img });
+      const categorie = await Categorie.create({
+        title_am,
+        title_ru,
+        title_en,
+        img,
+      });
 
       return res.send(categorie);
     } catch (e) {
@@ -16,33 +21,17 @@ class CategorieController {
 
   async getAll(req, res) {
     try {
-      const language = req.headers.language;
-
-      let categories = await Categorie.findAll({ order: [['id', 'ASC']] });
-
+      const { language } = req.query;
+      let categories;
       if (language) {
-        if (language === 'am') {
-          categories = categories.map((categorie) => {
-            return {
-              ...categorie.dataValues,
-              title: categorie.title_am,
-            };
-          });
-        } else if (language === 'ru') {
-          categories = categories.map((categorie) => {
-            return {
-              ...categorie.dataValues,
-              title: categorie.title_ru,
-            };
-          });
-        } else {
-          categories = categories.map((categorie) => {
-            return {
-              ...categorie.dataValues,
-              title: categorie.title_en,
-            };
-          });
-        }
+        categories = await Categorie.findAll({
+          order: [["id", "ASC"]],
+          attributes: [[`title_${language}`, `title`], "id", "title_en", "img"],
+        });
+      } else {
+        categories = await Categorie.findAll({
+          order: [["id", "ASC"]],
+        });
       }
       return res.send(categories);
     } catch (e) {
@@ -54,25 +43,10 @@ class CategorieController {
   async getOne(req, res) {
     try {
       const { id } = req.params;
-      const language = req.headers.language;
 
       const categorie = await Categorie.findOne({
         where: { id },
       });
-
-      if (language) {
-        if (language === 'am') {
-          var { title_am, title_ru, title_en, ...data } = categorie.dataValues;
-          data.title = title_am;
-        } else if (language === 'ru') {
-          var { title_am, title_ru, title_en, ...data } = categorie.dataValues;
-          data.title = title_ru;
-        } else {
-          var { title_am, title_ru, title_en, ...data } = categorie.dataValues;
-          data.title = title_en;
-        }
-        return res.json(data);
-      }
 
       return res.json(categorie);
     } catch (e) {
@@ -110,7 +84,7 @@ class CategorieController {
           where: {
             id,
           },
-        },
+        }
       );
 
       return res.json({ success: true });

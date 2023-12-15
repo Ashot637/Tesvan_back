@@ -1,11 +1,16 @@
-const { HeaderImage } = require('../models/models');
+const { HeaderImage, Device, Categorie } = require("../models/models");
 
 class HeaderImageController {
   async create(req, res) {
     try {
       const { title, description, deviceId, img } = req.body;
 
-      const image = await HeaderImage.create({ deviceId, title, description, img });
+      const image = await HeaderImage.create({
+        deviceId,
+        title,
+        description,
+        img,
+      });
 
       return res.send(image);
     } catch (e) {
@@ -16,17 +21,9 @@ class HeaderImageController {
 
   async getAll(req, res) {
     try {
-      const images = await HeaderImage.findAll();
-      return res.send(images);
-    } catch (e) {
-      res.status(500).json({ succes: false });
-      console.log(e);
-    }
-  }
-
-  async getAll(req, res) {
-    try {
-      const images = await HeaderImage.findAll();
+      const images = await HeaderImage.findAll({
+        include: [{ model: Device, as: "device", include: [Categorie] }],
+      });
       return res.send(images);
     } catch (e) {
       res.status(500).json({ succes: false });
@@ -39,6 +36,7 @@ class HeaderImageController {
       const { id } = req.params;
       const headerImage = await HeaderImage.findOne({
         where: { id },
+        include: [{ model: Device, as: "device" }],
       });
       return res.json(headerImage);
     } catch (e) {
@@ -76,7 +74,7 @@ class HeaderImageController {
           where: {
             id,
           },
-        },
+        }
       );
 
       return res.json({ success: true });
