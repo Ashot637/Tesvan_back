@@ -14,17 +14,17 @@ function sendEmail(req, res) {
       port: 465,
       secure: true,
       auth: {
-        user: 't37378844@gmail.com',
-        pass: 'mliwqgdownkuesms',
+        user: process.env.SERVICE_EMAIL,
+        pass: process.env.SERVICE_PASSWORD,
       },
     });
 
     code = Math.floor(Math.random() * 899999 + 100000);
 
     const mailOptions = {
-      from: 't37378844@gmail.com',
-      to: 'ashotmartirosyan637@gmail.com',
-      subject: 'Test',
+      from: process.env.SERVICE_EMAIL,
+      to: process.env.ADMIN_EMAIL,
+      subject: 'Code for login to  admin panel',
       text: `${code}`,
     };
 

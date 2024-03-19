@@ -1,4 +1,4 @@
-const { DeviceInfoCategorie } = require("../models/models");
+const { DeviceInfoCategorie } = require('../models/models');
 
 class DeviceInfoCategorieController {
   async create(req, res) {
@@ -24,10 +24,13 @@ class DeviceInfoCategorieController {
       let deviceInfoCategories;
       if (language) {
         deviceInfoCategories = await DeviceInfoCategorie.findAll({
-          attributes: [[`title_${language}`, `title`], "id", "title_en"],
+          attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+          order: [['order', 'ASC']],
         });
       } else {
-        deviceInfoCategories = await DeviceInfoCategorie.findAll();
+        deviceInfoCategories = await DeviceInfoCategorie.findAll({
+          order: [['order', 'ASC']],
+        });
       }
       return res.send(deviceInfoCategories);
     } catch (e) {
@@ -79,8 +82,23 @@ class DeviceInfoCategorieController {
           where: {
             id,
           },
-        }
+        },
       );
+
+      return res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async updateOrder(req, res) {
+    try {
+      let { newOrder } = req.body;
+
+      for (const { id, order } of newOrder) {
+        await DeviceInfoCategorie.update({ order }, { where: { id } });
+      }
 
       return res.json({ success: true });
     } catch (e) {

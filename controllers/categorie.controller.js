@@ -1,4 +1,4 @@
-const { Categorie } = require("../models/models");
+const { Categorie } = require('../models/models');
 
 class CategorieController {
   async create(req, res) {
@@ -23,14 +23,15 @@ class CategorieController {
     try {
       const { language } = req.query;
       let categories;
+
       if (language) {
         categories = await Categorie.findAll({
-          order: [["id", "ASC"]],
-          attributes: [[`title_${language}`, `title`], "id", "title_en", "img"],
+          order: [['order', 'ASC']],
+          attributes: [[`title_${language}`, `title`], 'id', 'title_en', 'img'],
         });
       } else {
         categories = await Categorie.findAll({
-          order: [["id", "ASC"]],
+          order: [['order', 'ASC']],
         });
       }
       return res.send(categories);
@@ -84,8 +85,23 @@ class CategorieController {
           where: {
             id,
           },
-        }
+        },
       );
+
+      return res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async updateOrder(req, res) {
+    try {
+      let { newOrder } = req.body;
+
+      for (const { id, order } of newOrder) {
+        await Categorie.update({ order }, { where: { id } });
+      }
 
       return res.json({ success: true });
     } catch (e) {

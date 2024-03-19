@@ -34,6 +34,7 @@ class DeviceController {
             description_ru: i.description_ru,
             deviceId: device.id,
             deviceInfoCategorieId: i.deviceInfoCategorieId,
+            order: i.order,
           });
         });
       }
@@ -153,6 +154,7 @@ class DeviceController {
                 'title_en',
                 'deviceInfoCategorieId',
               ],
+              order: [['order', 'ASC']],
             },
             { model: Brand, as: 'brand' },
             {
@@ -165,7 +167,7 @@ class DeviceController {
       } else {
         device = await Device.findOne({
           where: { id },
-          include: [{ model: DeviceInfo, as: 'info' }],
+          include: [{ model: DeviceInfo, as: 'info', order: [['order', 'ASC']] }],
         });
       }
       return res.json(device);
@@ -230,6 +232,7 @@ class DeviceController {
                 description_ru: i.description_ru,
                 deviceId: device.id,
                 deviceInfoCategorieId: i.deviceInfoCategorieId,
+                order: i.order,
               },
               {
                 where: {
@@ -247,6 +250,7 @@ class DeviceController {
               description_ru: i.description_ru,
               deviceId: device.id,
               deviceInfoCategorieId: i.deviceInfoCategorieId,
+              order: i.order,
             });
           }
         });
