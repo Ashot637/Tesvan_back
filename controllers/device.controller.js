@@ -388,10 +388,10 @@ class DeviceController {
         if (title === "RAM") {
           return {
             title,
-            description: [...new Set(transformedData[title])].sort((a, b) => {
-              const first = parseInt(a.split(" ")[0]);
-              const second = parseInt(b.split(" ")[0]);
-              return first - second;
+            description: [
+              ...new Set(transformedData[title].map((x) => x.split(" ")[0])),
+            ].sort((a, b) => {
+              return a - b;
             }),
           };
         }
