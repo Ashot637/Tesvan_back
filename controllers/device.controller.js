@@ -495,7 +495,7 @@ class DeviceController {
           return i === device.info.length - 1 &&
             Object.entries(data).every(([key, value]) => {
               if (key === "RAM") {
-                return obj[key]?.split(" ")?.[0] === value.split(" ")?.[0];
+                return value.includes(obj[key].split(" ")[0]);
               }
               return value.includes(obj[key]);
             })
