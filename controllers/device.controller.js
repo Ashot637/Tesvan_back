@@ -381,9 +381,10 @@ class DeviceController {
           if (!transformedData[title]) {
             transformedData[title] = [];
           }
-          transformedData[title].push(description);
+          transformedData[title].push(description.trim());
         });
       });
+      console.log(transformedData);
       const resultArray = Object.keys(transformedData).map((title) => {
         if (title === "RAM") {
           return {
@@ -493,7 +494,8 @@ class DeviceController {
       let result = devices.map((device) => {
         const obj = {};
         return device.info.map((item, i) => {
-          obj[item[`title_${language}`]] = item[`description_${language}`];
+          obj[item[`title_${language}`]] =
+            item[`description_${language}`].trim();
           return i === device.info.length - 1 &&
             Object.entries(data).every(([key, value]) => {
               if (key === "RAM") {
