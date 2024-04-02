@@ -56,7 +56,7 @@ class AdminController {
         { id: user.id, email: user.email, role: user.role },
         process.env.SECRET_KEY,
         {
-          expiresIn: '24h',
+          expiresIn: '240h',
         },
       );
       res.send(token);
@@ -92,7 +92,7 @@ class AdminController {
         { id: user.id, email: user.email, role: user.role },
         process.env.SECRET_KEY,
         {
-          expiresIn: '24h',
+          expiresIn: '240h',
         },
       );
       res.send(token);
@@ -110,7 +110,7 @@ class AdminController {
           { id: currentUser.id, email: currentUser.email, role: currentUser.role },
           process.env.SECRET_KEY,
           {
-            expiresIn: '24h',
+            expiresIn: '240h',
           },
         );
         return res.send(token);

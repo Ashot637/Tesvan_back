@@ -1,15 +1,25 @@
-const { Op } = require('sequelize');
-const { Device, DeviceInfo, Brand, Categorie } = require('../models/models');
-const uuid = require('uuid');
-const path = require('path');
+const { Op } = require("sequelize");
+const { Device, DeviceInfo, Brand, Categorie } = require("../models/models");
+const uuid = require("uuid");
+const path = require("path");
 
 class DeviceController {
   async create(req, res) {
     try {
-      let { code, title, price, oldPrice, typeId, brandId, categorieId, info, quantity, images } =
-        req.body;
+      let {
+        code,
+        title,
+        price,
+        oldPrice,
+        typeId,
+        brandId,
+        categorieId,
+        info,
+        quantity,
+        images,
+      } = req.body;
 
-      images = images.split(',');
+      images = images.split(",");
       const device = await Device.create({
         code,
         title,
@@ -59,12 +69,12 @@ class DeviceController {
       let devices;
       if (byId) {
         devices = await Device.findAll({
-          order: [['id', 'ASC']],
+          order: [["id", "ASC"]],
           limit,
           offset,
           include: [
-            { model: Brand, as: 'brand' },
-            { model: Categorie, as: 'categorie' },
+            { model: Brand, as: "brand" },
+            { model: Categorie, as: "categorie" },
           ],
         });
         let length = (await Device.findAll()).length;
@@ -76,23 +86,23 @@ class DeviceController {
           where: {
             typeId,
           },
-          order: [['quantity', 'DESC']],
+          order: [["quantity", "DESC"]],
           include: [
             {
               model: DeviceInfo,
-              as: 'info',
+              as: "info",
               attributes: [
                 [`title_${language}`, `title`],
                 [`description_${language}`, `description`],
-                'id',
-                'title_en',
+                "id",
+                "title_en",
               ],
             },
-            { model: Brand, as: 'brand' },
+            { model: Brand, as: "brand" },
             {
               model: Categorie,
-              as: 'categorie',
-              attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+              as: "categorie",
+              attributes: [[`title_${language}`, `title`], "id", "title_en"],
             },
           ],
           limit,
@@ -105,23 +115,23 @@ class DeviceController {
           where: {
             categorieId,
           },
-          order: [['quantity', 'DESC']],
+          order: [["quantity", "DESC"]],
           include: [
             {
               model: DeviceInfo,
-              as: 'info',
+              as: "info",
               attributes: [
                 [`title_${language}`, `title`],
                 [`description_${language}`, `description`],
-                'id',
-                'title_en',
+                "id",
+                "title_en",
               ],
             },
-            { model: Brand, as: 'brand' },
+            { model: Brand, as: "brand" },
             {
               model: Categorie,
-              as: 'categorie',
-              attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+              as: "categorie",
+              attributes: [[`title_${language}`, `title`], "id", "title_en"],
             },
           ],
           limit,
@@ -146,28 +156,30 @@ class DeviceController {
           include: [
             {
               model: DeviceInfo,
-              as: 'info',
+              as: "info",
               attributes: [
                 [`title_${language}`, `title`],
                 [`description_${language}`, `description`],
-                'id',
-                'title_en',
-                'deviceInfoCategorieId',
+                "id",
+                "title_en",
+                "deviceInfoCategorieId",
               ],
-              order: [['order', 'ASC']],
+              order: [["order", "ASC"]],
             },
-            { model: Brand, as: 'brand' },
+            { model: Brand, as: "brand" },
             {
               model: Categorie,
-              as: 'categorie',
-              attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+              as: "categorie",
+              attributes: [[`title_${language}`, `title`], "id", "title_en"],
             },
           ],
         });
       } else {
         device = await Device.findOne({
           where: { id },
-          include: [{ model: DeviceInfo, as: 'info', order: [['order', 'ASC']] }],
+          include: [
+            { model: DeviceInfo, as: "info", order: [["order", "ASC"]] },
+          ],
         });
       }
       return res.json(device);
@@ -192,11 +204,21 @@ class DeviceController {
 
   async updateOne(req, res) {
     try {
-      let { code, title, price, oldPrice, typeId, brandId, categorieId, info, quantity, images } =
-        req.body;
+      let {
+        code,
+        title,
+        price,
+        oldPrice,
+        typeId,
+        brandId,
+        categorieId,
+        info,
+        quantity,
+        images,
+      } = req.body;
       const { id } = req.params;
 
-      images = images.split(',');
+      images = images.split(",");
 
       const device = await Device.findOne({ where: { id } });
       await Device.update(
@@ -215,7 +237,7 @@ class DeviceController {
           where: {
             id,
           },
-        },
+        }
       );
 
       if (info) {
@@ -238,7 +260,7 @@ class DeviceController {
                 where: {
                   id: i.id,
                 },
-              },
+              }
             );
           } else {
             DeviceInfo.create({
@@ -284,20 +306,20 @@ class DeviceController {
         include: [
           {
             model: DeviceInfo,
-            as: 'info',
+            as: "info",
             attributes: [
               [`title_${language}`, `title`],
               [`description_${language}`, `description`],
-              'id',
-              'title_en',
-              'deviceInfoCategorieId',
+              "id",
+              "title_en",
+              "deviceInfoCategorieId",
             ],
           },
-          { model: Brand, as: 'brand' },
+          { model: Brand, as: "brand" },
           {
             model: Categorie,
-            as: 'categorie',
-            attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+            as: "categorie",
+            attributes: [[`title_${language}`, `title`], "id", "title_en"],
           },
         ],
       });
@@ -321,8 +343,8 @@ class DeviceController {
         include: [
           {
             model: Categorie,
-            as: 'categorie',
-            attributes: ['title_en'],
+            as: "categorie",
+            attributes: ["title_en"],
           },
         ],
       });
@@ -345,7 +367,7 @@ class DeviceController {
         include: [
           {
             model: DeviceInfo,
-            as: 'info',
+            as: "info",
           },
         ],
       });
@@ -362,10 +384,22 @@ class DeviceController {
           transformedData[title].push(description);
         });
       });
-      const resultArray = Object.keys(transformedData).map((title) => ({
-        title,
-        description: [...new Set(transformedData[title])],
-      }));
+      const resultArray = Object.keys(transformedData).map((title) => {
+        if (title === "RAM") {
+          return {
+            title,
+            description: [...new Set(transformedData[title])].sort((a, b) => {
+              const first = parseInt(a.split(" ")[0]);
+              const second = parseInt(b.split(" ")[0]);
+              return first - second;
+            }),
+          };
+        }
+        return {
+          title,
+          description: [...new Set(transformedData[title])],
+        };
+      });
       return res.json(resultArray);
     } catch (e) {
       res.status(500).json({ succes: false });
@@ -393,8 +427,8 @@ class DeviceController {
       limit = limit || 12;
       minPrice = +minPrice || 0;
       maxPrice = +maxPrice || 2000000;
-      sortName = sortName || 'price';
-      sortFollowing = sortFollowing || 'DESC';
+      sortName = sortName || "price";
+      sortFollowing = sortFollowing || "DESC";
 
       let offset = page * limit - limit;
       let devices;
@@ -413,13 +447,13 @@ class DeviceController {
           include: [
             {
               model: DeviceInfo,
-              as: 'info',
+              as: "info",
             },
-            { model: Brand, as: 'brand' },
+            { model: Brand, as: "brand" },
             {
               model: Categorie,
-              as: 'categorie',
-              attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+              as: "categorie",
+              attributes: [[`title_${language}`, `title`], "id", "title_en"],
             },
           ],
         });
@@ -442,13 +476,13 @@ class DeviceController {
           include: [
             {
               model: DeviceInfo,
-              as: 'info',
+              as: "info",
             },
-            { model: Brand, as: 'brand' },
+            { model: Brand, as: "brand" },
             {
               model: Categorie,
-              as: 'categorie',
-              attributes: [[`title_${language}`, `title`], 'id', 'title_en'],
+              as: "categorie",
+              attributes: [[`title_${language}`, `title`], "id", "title_en"],
             },
           ],
         });
@@ -459,7 +493,9 @@ class DeviceController {
         return device.info.map((item, i) => {
           obj[item[`title_${language}`]] = item[`description_${language}`];
           return i === device.info.length - 1 &&
-            Object.entries(data).every(([key, value]) => value.includes(obj[key]))
+            Object.entries(data).every(([key, value]) =>
+              value.includes(obj[key])
+            )
             ? device
             : null;
         });
@@ -480,9 +516,9 @@ class DeviceController {
   async uploadImage(req, res) {
     try {
       const { img } = req.files;
-      const type = img.mimetype.split('/')[1];
-      const fileName = uuid.v4() + '.' + type;
-      img.mv(path.resolve(__dirname, '..', 'static', fileName));
+      const type = img.mimetype.split("/")[1];
+      const fileName = uuid.v4() + "." + type;
+      img.mv(path.resolve(__dirname, "..", "static", fileName));
 
       return res.json({ url: fileName });
     } catch (e) {
