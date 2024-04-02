@@ -36,12 +36,12 @@ class DeviceController {
         info = JSON.parse(info);
         info.forEach((i) => {
           DeviceInfo.create({
-            title_en: i.title_en,
-            title_am: i.title_am,
-            title_ru: i.title_ru,
-            description_en: i.description_en,
-            description_am: i.description_am,
-            description_ru: i.description_ru,
+            title_en: i.title_en.trim(),
+            title_am: i.title_am.trim(),
+            title_ru: i.title_ru.trim(),
+            description_en: i.description_en.trim(),
+            description_am: i.description_am.trim(),
+            description_ru: i.description_ru.trim(),
             deviceId: device.id,
             deviceInfoCategorieId: i.deviceInfoCategorieId,
             order: i.order,
@@ -246,12 +246,12 @@ class DeviceController {
           if (i.id) {
             DeviceInfo.update(
               {
-                title_en: i.title_en,
-                title_am: i.title_am,
-                title_ru: i.title_ru,
-                description_en: i.description_en,
-                description_am: i.description_am,
-                description_ru: i.description_ru,
+                title_en: i.title_en.trim(),
+                title_am: i.title_am.trim(),
+                title_ru: i.title_ru.trim(),
+                description_en: i.description_en.trim(),
+                description_am: i.description_am.trim(),
+                description_ru: i.description_ru.trim(),
                 deviceId: device.id,
                 deviceInfoCategorieId: i.deviceInfoCategorieId,
                 order: i.order,
@@ -264,12 +264,12 @@ class DeviceController {
             );
           } else {
             DeviceInfo.create({
-              title_en: i.title_en,
-              title_am: i.title_am,
-              title_ru: i.title_ru,
-              description_en: i.description_en,
-              description_am: i.description_am,
-              description_ru: i.description_ru,
+              title_en: i.title_en.trim(),
+              title_am: i.title_am.trim(),
+              title_ru: i.title_ru.trim(),
+              description_en: i.description_en.trim(),
+              description_am: i.description_am.trim(),
+              description_ru: i.description_ru.trim(),
               deviceId: device.id,
               deviceInfoCategorieId: i.deviceInfoCategorieId,
               order: i.order,
@@ -493,9 +493,12 @@ class DeviceController {
         return device.info.map((item, i) => {
           obj[item[`title_${language}`]] = item[`description_${language}`];
           return i === device.info.length - 1 &&
-            Object.entries(data).every(([key, value]) =>
-              value.includes(obj[key])
-            )
+            Object.entries(data).every(([key, value]) => {
+              if (key === "RAM") {
+                return obj[key]?.split(" ")?.[0] === value;
+              }
+              return value.includes(obj[key]);
+            })
             ? device
             : null;
         });
