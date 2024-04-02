@@ -384,17 +384,21 @@ class DeviceController {
           transformedData[title].push(description.trim());
         });
       });
-      console.log(transformedData);
+      console.log(transformedData["RAM"]);
       const resultArray = Object.keys(transformedData).map((title) => {
         if (title === "RAM") {
           return {
             title,
             description: [
               ...new Set(
-                transformedData[title].map((x) => Number(x.split(" ")[0]))
+                transformedData[title].map((x) =>
+                  Number(x.split(" ").slice(0, 2).join(" "))
+                )
               ),
             ].sort((a, b) => {
-              return a - b;
+              const first = parseInt(a.split(" ")[0]);
+              const second = parseInt(b.split(" ")[0]);
+              return first - second;
             }),
           };
         }
