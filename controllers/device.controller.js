@@ -389,7 +389,9 @@ class DeviceController {
           return {
             title,
             description: [
-              ...new Set(transformedData[title].map((x) => x.split(" ")[0])),
+              ...new Set(
+                transformedData[title].map((x) => Number(x.split(" ")[0]))
+              ),
             ].sort((a, b) => {
               return a - b;
             }),
