@@ -402,23 +402,17 @@ class DeviceController {
             }),
           };
         }
-        if (title === "Screen Resolution") {
-          const numericValues = transformedData[title].map((str) => {
-            const matches = str.match(/\d+(\.\d+)?/g);
-            return matches ? matches.map(Number) : [];
-          });
-          return {
-            title,
-            description: [...new Set(transformedData[title])].sort((a, b) => {
-              const numA = numericValues[transformedData[title].indexOf(a)][0];
-              const numB = numericValues[transformedData[title].indexOf(b)][0];
-              return numA - numB;
-            }),
-          };
-        }
+        const numericValues = transformedData[title].map((str) => {
+          const matches = str.match(/\d+(\.\d+)?/g);
+          return matches ? matches.map(Number) : [];
+        });
         return {
           title,
-          description: [...new Set(transformedData[title])],
+          description: [...new Set(transformedData[title])].sort((a, b) => {
+            const numA = numericValues[transformedData[title].indexOf(a)][0];
+            const numB = numericValues[transformedData[title].indexOf(b)][0];
+            return numA - numB;
+          }),
         };
       });
       return res.json(resultArray);
