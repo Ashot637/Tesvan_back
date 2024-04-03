@@ -384,10 +384,6 @@ class DeviceController {
           transformedData[title].push(description.trim());
         });
       });
-      const numericValues = strings.map((str) => {
-        const matches = str.match(/\d+(\.\d+)?/g);
-        return matches ? matches.map(Number) : [];
-      });
 
       const resultArray = Object.keys(transformedData).map((title) => {
         if (title === "RAM") {
@@ -407,11 +403,15 @@ class DeviceController {
           };
         }
         if (title === "Screen Resolution") {
+          const numericValues = transformedData[title].map((str) => {
+            const matches = str.match(/\d+(\.\d+)?/g);
+            return matches ? matches.map(Number) : [];
+          });
           return {
             title,
             description: [...new Set(transformedData[title])].sort((a, b) => {
-              const numA = numericValues[strings.indexOf(a)][0];
-              const numB = numericValues[strings.indexOf(b)][0];
+              const numA = numericValues[transformedData[title].indexOf(a)][0];
+              const numB = numericValues[transformedData[title].indexOf(b)][0];
               return numA - numB;
             }),
           };
