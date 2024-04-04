@@ -376,6 +376,7 @@ class DeviceController {
 
       devices.forEach((device) => {
         device.info.forEach((infoItem) => {
+          if (infoItem.title_en === "Processor") return;
           const title = infoItem[`title_${language}`];
           const description = infoItem[`description_${language}`];
           if (!transformedData[title]) {
@@ -386,8 +387,6 @@ class DeviceController {
       });
 
       const resultArray = Object.keys(transformedData).map((title) => {
-        if (["Процессор", "Processor", "Պրոցեսոր"].includes(title)) return;
-
         if (title === "RAM") {
           return {
             title,
