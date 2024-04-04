@@ -386,6 +386,8 @@ class DeviceController {
       });
 
       const resultArray = Object.keys(transformedData).map((title) => {
+        if (["Процессор", "Processor", "Պրոցեսոր"].includes(title)) return;
+
         if (title === "RAM") {
           return {
             title,
