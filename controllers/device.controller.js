@@ -516,7 +516,7 @@ class DeviceController {
                   obj[key].split(" ").slice(0, 2).join(" ")
                 );
               }
-              if (["Processor", "Պրոցեսոր", "Процессор"].includes[key]) {
+              if (["Processor", "Պրոցեսոր", "Процессор"].includes(key)) {
                 return !!value.find((processor) =>
                   obj[key].includes(processor)
                 );

@@ -19,12 +19,12 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
-app.use((req, res, next) => {
-  if (req.query.language) {
-    res.setHeader("Cache-Control", "public, max-age=3600");
-  }
-  next();
-});
+// app.use((req, res, next) => {
+//   if (req.query.language) {
+//     res.setHeader("Cache-Control", "public, max-age=3600");
+//   }
+//   next();
+// });
 
 app.use(bodyParser.json());
 
