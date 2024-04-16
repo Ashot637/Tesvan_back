@@ -73,7 +73,7 @@ class OrdersController {
             params: {
               userName: process.env.PAYMENT_USERNAME,
               password: process.env.PAYMENT_PASSWORD,
-              amount: total,
+              amount: `${total}00`,
               currency: CURRENCIES[currency],
               returnUrl,
               failUrl,
