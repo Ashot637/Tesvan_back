@@ -1,7 +1,7 @@
-const { User } = require('../models/models');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
+const { User } = require("../models/models");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 let code;
 let currentUser;
@@ -9,8 +9,8 @@ let currentUser;
 function sendEmail(req, res) {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      host: 'smtp.gmail.com',
+      service: "gmail",
+      host: "smtp.gmail.com",
       port: 465,
       secure: true,
       auth: {
@@ -23,8 +23,8 @@ function sendEmail(req, res) {
 
     const mailOptions = {
       from: process.env.SERVICE_EMAIL,
-      to: process.env.ADMIN_EMAIL,
-      subject: 'Code for login to  admin panel',
+      to: req.body.email,
+      subject: "Code for login to  admin panel",
       text: `${code}`,
     };
 
@@ -32,7 +32,7 @@ function sendEmail(req, res) {
       if (error) {
         console.log(error);
       } else {
-        console.log('Email successfully sent');
+        console.log("Email successfully sent");
       }
     });
   } catch (e) {
@@ -56,8 +56,8 @@ class AdminController {
         { id: user.id, email: user.email, role: user.role },
         process.env.SECRET_KEY,
         {
-          expiresIn: '240h',
-        },
+          expiresIn: "240h",
+        }
       );
       res.send(token);
     } catch (e) {
@@ -73,7 +73,10 @@ class AdminController {
       if (!currentUser) {
         return res.status(500).json({ succes: false });
       }
-      const comparePassword = bcrypt.compareSync(password, currentUser.password);
+      const comparePassword = bcrypt.compareSync(
+        password,
+        currentUser.password
+      );
       if (!comparePassword) {
         return res.status(500).json({ succes: false });
       }
@@ -92,8 +95,8 @@ class AdminController {
         { id: user.id, email: user.email, role: user.role },
         process.env.SECRET_KEY,
         {
-          expiresIn: '240h',
-        },
+          expiresIn: "240h",
+        }
       );
       res.send(token);
     } catch (e) {
@@ -107,11 +110,15 @@ class AdminController {
       const { numbers } = req.body;
       if (+numbers === +code) {
         const token = jwt.sign(
-          { id: currentUser.id, email: currentUser.email, role: currentUser.role },
+          {
+            id: currentUser.id,
+            email: currentUser.email,
+            role: currentUser.role,
+          },
           process.env.SECRET_KEY,
           {
-            expiresIn: '240h',
-          },
+            expiresIn: "240h",
+          }
         );
         return res.send(token);
       }
