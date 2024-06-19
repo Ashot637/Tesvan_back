@@ -360,6 +360,7 @@ class OrdersController {
     const EDP_REC_ACCOUNT = process.env.IDRAM_ID;
     const request = req.body;
     const billId = request.EDP_BILL_NO;
+    console.log(billId);
 
     try {
       if (
@@ -397,12 +398,14 @@ class OrdersController {
           request.EDP_TRANS_ID +
           ":" +
           request.EDP_TRANS_DATE;
+        console.log(txtToHash, "HASH");
         if (
           request.EDP_CHECKSUM.toUpperCase() !==
           CryptoJS.MD5(txtToHash).toString().toUpperCase()
         ) {
           res.send("Error");
         } else {
+          console.log("LOGIC");
           const payment = await Payment.findOne({
             where: { orderNumber: billId },
           });
@@ -424,6 +427,8 @@ class OrdersController {
           });
 
           await order.save();
+
+          console.log("+++++++++++++");
 
           const mailOptions = {
             from: process.env.SERVICE_EMAIL,
