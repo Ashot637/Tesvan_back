@@ -6,6 +6,7 @@ const checkRole = require("../middleware/checkRole");
 router.get("/orders", checkRole, ordersController.getAll);
 router.post("/orders", ordersController.create);
 router.post("/orders/finish", ordersController.finish);
+router.post("/payment/confirmIdram", ordersController.finishIdram);
 router.get("/orders/:id", checkRole, ordersController.getOne);
 router.delete("/orders/:id", checkRole, ordersController.deleteOne);
 router.patch("/orders/:id", checkRole, ordersController.updateOne);

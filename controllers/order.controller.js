@@ -195,6 +195,30 @@ class OrdersController {
         });
 
         return res.json({ success: true, formUrl: returnUrl });
+      } else if (payment === "Idram") {
+        const orderNumber = Math.floor(Date.now() * Math.random());
+
+        const order = await Orders.create({
+          devices: JSON.stringify(devices),
+          total,
+          name,
+          surname,
+          phone,
+          email,
+          message,
+          address,
+          region,
+          payment,
+          delivery,
+        });
+
+        await Payment.create({
+          orderId: order.id,
+          orderKey: paymentResponse.orderId,
+          orderNumber,
+        });
+
+        return res.json({ success: true, billId: orderNumber });
       }
     } catch (e) {
       res.status(500).json({ succes: false });
@@ -325,6 +349,81 @@ class OrdersController {
       });
 
       return res.send({ success: true });
+    } catch (e) {
+      res.status(500).json({ succes: false });
+      console.log(e);
+    }
+  }
+
+  async finishIdram(req, res) {
+    const SECRET_KEY = process.env.IDRAM_PASSWORD;
+    const EDP_REC_ACCOUNT = process.env.IDRAM_ID;
+    const request = req.body;
+    const billId = request.EDP_BILL_NO;
+
+    try {
+      if (
+        typeof request.EDP_PRECHECK !== "undefined" &&
+        typeof request.EDP_BILL_NO !== "undefined" &&
+        typeof request.EDP_REC_ACCOUNT !== "undefined" &&
+        typeof request.EDP_AMOUNT !== "undefined"
+      ) {
+        if (request.EDP_PRECHECK === "YES") {
+          if (request.EDP_REC_ACCOUNT === EDP_REC_ACCOUNT) {
+            res.send("OK");
+          }
+        }
+      }
+
+      if (
+        typeof request.EDP_PAYER_ACCOUNT !== "undefined" &&
+        typeof request.EDP_BILL_NO !== "undefined" &&
+        typeof request.EDP_REC_ACCOUNT !== "undefined" &&
+        typeof request.EDP_AMOUNT !== "undefined" &&
+        typeof request.EDP_TRANS_ID !== "undefined" &&
+        typeof request.EDP_CHECKSUM !== "undefined"
+      ) {
+        const txtToHash =
+          EDP_REC_ACCOUNT +
+          ":" +
+          request.EDP_AMOUNT +
+          ":" +
+          SECRET_KEY +
+          ":" +
+          request.EDP_BILL_NO +
+          ":" +
+          request.EDP_PAYER_ACCOUNT +
+          ":" +
+          request.EDP_TRANS_ID +
+          ":" +
+          request.EDP_TRANS_DATE;
+        if (
+          request.EDP_CHECKSUM.toUpperCase() !==
+          CryptoJS.MD5(txtToHash).toString().toUpperCase()
+        ) {
+          res.send("Error");
+        } else {
+          const payment = await Payment.findOne({
+            where: { orderNumber: billId },
+          });
+          if (!payment) {
+            return res
+              .status(400)
+              .json({ success: false, message: "Payment not found" });
+          }
+          await Orders.update(
+            {
+              where: {
+                id: payment.orderId,
+              },
+            },
+            {
+              status: "pending",
+            }
+          );
+          return res.send("OK");
+        }
+      }
     } catch (e) {
       res.status(500).json({ succes: false });
       console.log(e);
