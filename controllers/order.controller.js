@@ -214,7 +214,7 @@ class OrdersController {
 
         await Payment.create({
           orderId: order.id,
-          orderKey: paymentResponse.orderId,
+          orderKey: orderNumber,
           orderNumber,
         });
 
@@ -411,6 +411,79 @@ class OrdersController {
               .status(400)
               .json({ success: false, message: "Payment not found" });
           }
+          const order = await Orders.findByPk(payment.orderId);
+
+          const devices = JSON.parse(order.devices);
+          order.status = "pending";
+
+          devices.map((device) => {
+            Device.decrement("quantity", {
+              by: device.count,
+              where: { id: device.id },
+            });
+          });
+
+          await order.save();
+
+          const mailOptions = {
+            from: process.env.SERVICE_EMAIL,
+            to: `${order.email}`,
+            subject: "Your order has completed successfully!",
+            html: `
+        <div style="width: 100%; height: 550px; background: #12222d; padding-top: 30px; text-align: center">
+  <img src="cid:order" alt="" width="150" height="150">
+  <h1 style="color: #F4B41A">Your order has completed successfully!</h1>
+  <h3 style="color: white; margin-bottom: 30px">Dear ${order.name}!<br>
+  Your order is pending.
+ </h3>
+ <div style="width: 80%; background: grey; height: 1px; margin: 0 auto 20px"></div>
+ <img
+   style="margin: 0 auto 50px"
+   src="cid:logo"
+   width="50"
+   height="60"
+   alt=""/>
+  <div style="margin: 0 auto;width: 400px">
+  <div style="width: fit-content; display: flex;margin: 0 auto 10px;">
+   <img src="cid:phone" height="24" width="24" style="margin-right: 10px">
+    <span style="color: white; text-align: left;margin-top: 3px">+ (374) 55 49 19 89</span>
+  </div>
+   <div style="width: fit-content; display: flex;margin: 0 auto;">
+   <img src="cid:marker" height="24" width="24" style="margin-right: 10px">
+    <span style="color: white; text-align: left;margin-top: 3px">45 Nairyan St Sevan, Armenia</span>
+  </div></div>
+ </div>`,
+            attachments: [
+              {
+                filename: "order.png",
+                path: path.resolve(__dirname, "..", "public", "order.png"),
+                cid: "order",
+              },
+              {
+                filename: "phone.png",
+                path: path.resolve(__dirname, "..", "public", "phone.png"),
+                cid: "phone",
+              },
+              {
+                filename: "logo.png",
+                path: path.resolve(__dirname, "..", "public", "logo.png"),
+                cid: "logo",
+              },
+              {
+                filename: "marker.png",
+                path: path.resolve(__dirname, "..", "public", "marker.png"),
+                cid: "marker",
+              },
+            ],
+          };
+
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log("Email successfully sent");
+            }
+          });
           await Orders.update(
             {
               where: {
