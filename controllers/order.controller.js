@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const nodemailer = require("nodemailer");
 const path = require("path");
 const axios = require("axios");
-
+const CryptoJS = require("crypto-js");
 const CURRENCIES = {
   AMD: "051",
 };
@@ -494,9 +494,9 @@ class OrdersController {
               status: "pending",
             }
           );
-          return res.send("OK");
         }
       }
+      return res.send("OK");
     } catch (e) {
       res.status(500).json({ succes: false });
       console.log(e);
