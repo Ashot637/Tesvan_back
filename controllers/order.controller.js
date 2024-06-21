@@ -358,9 +358,9 @@ class OrdersController {
   async finishIdram(req, res) {
     const SECRET_KEY = process.env.IDRAM_PASSWORD;
     const EDP_REC_ACCOUNT = process.env.IDRAM_ID;
+    console.log(req.body);
     const request = req.body;
     const billId = request.EDP_BILL_NO;
-    console.log(billId);
 
     try {
       if (
