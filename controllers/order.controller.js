@@ -364,19 +364,6 @@ class OrdersController {
 
     try {
       if (
-        typeof request.EDP_PRECHECK !== "undefined" &&
-        typeof request.EDP_BILL_NO !== "undefined" &&
-        typeof request.EDP_REC_ACCOUNT !== "undefined" &&
-        typeof request.EDP_AMOUNT !== "undefined"
-      ) {
-        if (request.EDP_PRECHECK === "YES") {
-          if (request.EDP_REC_ACCOUNT === EDP_REC_ACCOUNT) {
-            res.send("OK");
-          }
-        }
-      }
-
-      if (
         typeof request.EDP_PAYER_ACCOUNT !== "undefined" &&
         typeof request.EDP_BILL_NO !== "undefined" &&
         typeof request.EDP_REC_ACCOUNT !== "undefined" &&
@@ -398,14 +385,12 @@ class OrdersController {
           request.EDP_TRANS_ID +
           ":" +
           request.EDP_TRANS_DATE;
-        console.log(txtToHash, "HASH");
         if (
           request.EDP_CHECKSUM.toUpperCase() !==
           CryptoJS.MD5(txtToHash).toString().toUpperCase()
         ) {
-          res.send("Error");
+          return res.send("Error");
         } else {
-          console.log("LOGIC");
           const payment = await Payment.findOne({
             where: { orderNumber: billId },
           });
@@ -427,8 +412,6 @@ class OrdersController {
           });
 
           await order.save();
-
-          console.log("+++++++++++++");
 
           const mailOptions = {
             from: process.env.SERVICE_EMAIL,
