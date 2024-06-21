@@ -474,12 +474,12 @@ class OrdersController {
           });
           await Orders.update(
             {
+              status: "pending",
+            },
+            {
               where: {
                 id: payment.orderId,
               },
-            },
-            {
-              status: "pending",
             }
           );
         }
